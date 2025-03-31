@@ -1,0 +1,21 @@
+services:
+  spring-boot-app:
+    build:
+      context: backend
+      dockerfile: Dockerfile
+    ports:
+      - '8080:8080'
+      - '35729:35729'
+    volumes:
+      - ./backend:/app
+
+  mariadb:
+    container_name: mariadb-java
+    environment:
+        MARIADB_DATABASE: ${DB_DATABASE}
+        MARIADB_ROOT_PASSWORD: ${DB_PASSWORD}
+    image: mariadb:11.7.1-ubi9-rc
+    ports:
+        - "3308:3306"
+    restart: unless-stopped
+    tty: true
