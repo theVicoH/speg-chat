@@ -14,11 +14,18 @@ services:
     environment:
         MARIADB_DATABASE: ${DB_DATABASE}
         MARIADB_ROOT_PASSWORD: ${DB_PASSWORD}
+    command: [
+      "--character-set-server=utf8mb4",
+      "--collation-server=utf8mb4_unicode_ci",
+    ]
     image: mariadb:11.7.1-ubi9-rc
     ports:
         - "3308:3306"
     restart: unless-stopped
     tty: true
+    volumes:
+      - ./backend/dump/init.sql:/docker-entrypoint-initdb.d/dump.sql
+
 
   adminer:
     image: adminer:5.1.0
