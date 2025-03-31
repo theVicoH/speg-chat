@@ -26,7 +26,6 @@ services:
     volumes:
       - ./backend/dump/init.sql:/docker-entrypoint-initdb.d/dump.sql
 
-
   adminer:
     image: adminer:5.1.0
     restart: always
