@@ -5,9 +5,14 @@ services:
       dockerfile: Dockerfile
     ports:
       - '8080:8080'
-      - '35729:35729'
-    volumes:
-      - ./backend:/app
+    environment:
+      - SPRING_DEVTOOLS_RESTART_ENABLED=true
+      - SPRING_DEVTOOLS_LIVERELOAD_ENABLED=true
+    develop:
+      watch:
+        - path: ./backend/src
+          target: /app/src
+          action: sync+restart
 
   mariadb:
     container_name: mariadb-java
