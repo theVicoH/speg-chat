@@ -8,7 +8,9 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @RestController
 @RequestMapping("/api")
 @Tag(name = "Hello", description = "API de démonstration pour tester le fonctionnement de base")
@@ -21,7 +23,7 @@ public class HelloController {
     })
     @GetMapping("/hello")
     public String hello() {
+        log.info("Hello endpoint called");
         return "Hello World!";
     }
-
 }
