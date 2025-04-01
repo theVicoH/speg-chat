@@ -10,6 +10,8 @@ services:
       - SPRING_DEVTOOLS_LIVERELOAD_ENABLED=true
     env_file:
       - ./.env
+    depends_on:
+      - mariadb
     develop:
       watch:
         - path: ./backend/src
