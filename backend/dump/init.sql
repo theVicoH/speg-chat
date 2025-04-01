@@ -70,14 +70,6 @@ CREATE TABLE IF NOT EXISTS `bans` (
     CONSTRAINT `ban_ban_type_id_foreign` FOREIGN KEY (`ban_type_id`) REFERENCES `bans_types`(`id`)
 );
 
-CREATE TABLE IF NOT EXISTS `contacts` (
-    `id` INT PRIMARY KEY AUTO_INCREMENT NOT NULL,
-    `user_id` INT NOT NULL,
-    `contact_id` INT NOT NULL,
-    CONSTRAINT `fk_contacts_user` FOREIGN KEY (`user_id`) REFERENCES `users`(`id`),
-    CONSTRAINT `fk_contacts_contact` FOREIGN KEY (`contact_id`) REFERENCES `users`(`id`)
-);
-
 INSERT INTO `roles` (`role`) VALUES ('administrator'), ('moderator'), ('basic');
 
 INSERT INTO `rooms_types` (`type`) VALUES ('public'), ('private');
