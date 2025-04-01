@@ -14,7 +14,7 @@ import java.util.List;
 @Entity
 public class User implements UserDetails {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(nullable = false)
     private Integer id;
 
@@ -23,6 +23,9 @@ public class User implements UserDetails {
 
     @Column(nullable = false)
     private String password;
+
+    @Column(name = "role_id", nullable = false)
+    private Integer roleId = 3;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
@@ -54,6 +57,15 @@ public class User implements UserDetails {
 
     public User setUsername(String username) {
         this.username = username;
+        return this;
+    }
+
+    public Integer getRoleId() {
+        return roleId;
+    }
+
+    public User setRoleId(Integer roleId) {
+        this.roleId = roleId;
         return this;
     }
 }
