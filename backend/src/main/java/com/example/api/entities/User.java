@@ -1,6 +1,11 @@
 package com.example.api.entities;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.experimental.Accessors;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 import org.springframework.security.core.GrantedAuthority;
@@ -10,6 +15,11 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 
+@Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+@Accessors(chain = true)
 @Table(name = "users")
 @Entity
 public class User implements UserDetails {
@@ -32,40 +42,23 @@ public class User implements UserDetails {
         return List.of();
     }
 
-    public String getPassword() {
-        return password;
+    @Override
+    public boolean isAccountNonExpired() {
+        return true;
     }
 
     @Override
-    public String getUsername() {
-        return username;
+    public boolean isAccountNonLocked() {
+        return true;
     }
 
-    public Integer getId() {
-        return id;
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return true;
     }
 
-    public User setId(Integer id) {
-        this.id = id;
-        return this;
-    }
-
-    public User setPassword(String password) {
-        this.password = password;
-        return this;
-    }
-
-    public User setUsername(String username) {
-        this.username = username;
-        return this;
-    }
-
-    public Integer getRoleId() {
-        return roleId;
-    }
-
-    public User setRoleId(Integer roleId) {
-        this.roleId = roleId;
-        return this;
+    @Override
+    public boolean isEnabled() {
+        return true;
     }
 }
