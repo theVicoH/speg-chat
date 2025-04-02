@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import java.util.List;
 
 @Slf4j
 @RestController
@@ -35,6 +36,12 @@ public class RoomController {
     public ResponseEntity<RoomDto> getRoomById(@PathVariable Integer id) {
         RoomDto room = roomService.getRoomById(id);
         return new ResponseEntity<>(room, HttpStatus.OK);
+    }
+
+    @GetMapping
+    public ResponseEntity<List<RoomDto>> getAllRooms() {
+        List<RoomDto> rooms = roomService.getAllRooms();
+        return new ResponseEntity<>(rooms, HttpStatus.OK);
     }
 
     @PutMapping("/{id}")

@@ -13,7 +13,6 @@ public class RoomDto {
     private List<Integer> messageIds;
     private List<Integer> userIds;
 
-    // Constructeurs
     public RoomDto() {}
 
     public RoomDto(Integer id, String name, Integer creator, Integer roomType, LocalDateTime createdAt, LocalDateTime updatedAt, List<Integer> messageIds, List<Integer> userIds) {
@@ -27,7 +26,6 @@ public class RoomDto {
         this.userIds = userIds;
     }
 
-    // Getters et Setters
     public Integer getId() {
         return id;
     }

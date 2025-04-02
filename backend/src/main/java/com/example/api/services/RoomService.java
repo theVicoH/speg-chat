@@ -15,7 +15,9 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Collections;
 import java.util.stream.Collectors;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Service
 public class RoomService {
     private final RoomRepository roomRepository;
@@ -54,19 +56,29 @@ public class RoomService {
     /**
      * Récupère une salle par ID et retourne un DTO.
      */
+    @Transactional
     public RoomDto getRoomById(Integer id) {
         Room room = roomRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Salle non trouvée avec l'ID : " + id));
-        return convertToDto(room);
+                .orElseThrow(() -> {
+                    log.error("Room not found with ID: {}", id);
+                    return new ResourceNotFoundException("Salle non trouvée avec l'ID : " + id);
+                });
+        RoomDto dto = convertToDto(room);
+        return dto;
     }
+    
 
     /**
      * Récupère toutes les salles sous forme de liste de DTO.
      */
-    public List<Room> getAllRooms() {
+    @Transactional
+    public List<RoomDto> getAllRooms() {
         List<Room> rooms = roomRepository.findAll();
-        return rooms;
+        return rooms.stream()
+                    .map(this::convertToDto)
+                    .collect(Collectors.toList());
     }
+
 
     /**
      * Met à jour une salle existante.
@@ -112,7 +124,8 @@ public class RoomService {
      * Convertit une entité Room en DTO RoomDto.
      */
     private RoomDto convertToDto(Room room) {
-        return new RoomDto(
+        try {
+            RoomDto dto = new RoomDto(
                 room.getId(),
                 room.getName(),
                 room.getCreator().getId(),
@@ -125,7 +138,14 @@ public class RoomService {
                 room.getUsers() != null 
                     ? room.getUsers().stream().map(user -> user.getId()).collect(Collectors.toList()) 
                     : Collections.emptyList()
-        );
+            );
+            log.info("Converted DTO: {}", dto);
+            return dto;
+        } catch (Exception e) {
+            log.error("Erreur lors de la conversion de Room en DTO", e);
+            throw e;
+        }
     }
+    
 
 }
