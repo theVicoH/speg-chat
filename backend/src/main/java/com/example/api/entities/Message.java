@@ -1,41 +1,52 @@
 package com.example.api.entities;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.UpdateTimestamp;
-
+import lombok.*;
 import java.time.LocalDateTime;
 
+@Entity
+@Table(name = "messages")
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Entity
-@Table(name = "messages")
 public class Message {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-
+    private Integer id;
+    
+    // Utilisez le bon nom de colonne
     @Column(name = "message", nullable = false)
     private String content;
-
-    @ManyToOne(fetch = FetchType.LAZY)
+    
+    @ManyToOne(fetch = FetchType.EAGER)  // Changez LAZY en EAGER
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
-
-    @Column(name = "room_id")
-    private Long roomId;
-
-    @CreationTimestamp
-    @Column(name = "created_at", updatable = false)
+    
+    @ManyToOne(fetch = FetchType.EAGER)  // Changez LAZY en EAGER
+    @JoinColumn(name = "room_id", nullable = false)
+    private Room room;
+    
+    @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
-
-    @UpdateTimestamp
-    @Column(name = "updated_at")
+    
+    @Column(name = "updated_at", nullable = false)
     private LocalDateTime updatedAt;
+    
+    // Méthode utilitaire pour obtenir l'ID de la room
+    public Integer getRoomId() {
+        return room != null ? room.getId() : null;
+    }
+    
+    // Ajouter des méthodes pour gérer les timestamps
+    @PrePersist
+    protected void onCreate() {
+        createdAt = LocalDateTime.now();
+        updatedAt = LocalDateTime.now();
+    }
+    
+    @PreUpdate
+    protected void onUpdate() {
+        updatedAt = LocalDateTime.now();
+    }
 }

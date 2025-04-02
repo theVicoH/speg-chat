@@ -16,5 +16,5 @@ public class MessageRequest {
     private String content;
     
     @NotNull(message = "Room ID is required")
-    private Long roomId;
+    private Integer roomId;
 }
