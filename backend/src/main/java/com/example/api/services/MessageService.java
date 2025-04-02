@@ -46,11 +46,11 @@ public class MessageService {
         User currentUser = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         
         Message message = Message.builder()
-                .content(messageRequest.getContent())
-                .user(currentUser)
-                .roomId(messageRequest.getRoomId())
-                .build();
-        
+                  .content(messageRequest.getContent())
+                  .user(currentUser)
+                  .roomId(messageRequest.getRoomId())
+                  .build();
+          
         Message savedMessage = messageRepository.save(message);
         return MessageDto.fromEntity(savedMessage);
     }
