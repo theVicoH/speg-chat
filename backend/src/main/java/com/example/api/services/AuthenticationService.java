@@ -9,6 +9,10 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.server.ResponseStatusException;
+
 @Service
 public class AuthenticationService {
     private final UserRepository userRepository;
@@ -28,11 +32,21 @@ public class AuthenticationService {
     }
 
     public User signup(RegisterUserDto input) {
+        // Check if username already exists
+        if (userRepository.findByUsername(input.getUsername()).isPresent()) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Username already exists");
+        }
+        
         User user = new User()
                 .setUsername(input.getUsername())
                 .setPassword(passwordEncoder.encode(input.getPassword()));
-
-        return userRepository.save(user);
+    
+        try {
+            return userRepository.save(user);
+        } catch (DataIntegrityViolationException e) {
+            // This is a fallback in case of race conditions
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Username already exists");
+        }
     }
 
     public User authenticate(LoginUserDto input) {
