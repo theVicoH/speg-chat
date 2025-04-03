@@ -18,8 +18,7 @@ CREATE TABLE IF NOT EXISTS `bans_types` (
 
 CREATE TABLE IF NOT EXISTS `users` (
     `id` INT PRIMARY KEY AUTO_INCREMENT NOT NULL,
-    `role_id` INT NOT NULL,
-    `username` VARCHAR(255) NOT NULL,
+    `username` VARCHAR(255) UNIQUE NOT NULL,
     `password` VARCHAR(255) NOT NULL,
     `is_online` BOOLEAN NOT NULL DEFAULT FALSE,
     CONSTRAINT `user_role_id_foreign` FOREIGN KEY (`role_id`) REFERENCES `roles`(`id`)

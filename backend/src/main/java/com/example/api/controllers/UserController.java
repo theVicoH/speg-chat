@@ -1,38 +1,64 @@
 package com.example.api.controllers;
 
+import com.example.api.dtos.UserDto;
 import com.example.api.entities.User;
+import com.example.api.mappers.UserMapper;
 import com.example.api.services.UserService;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
-@RequestMapping("/users")
 @RestController
+@RequestMapping("/users")
 public class UserController {
     private final UserService userService;
+    private final UserMapper userMapper;
 
-    public UserController(UserService userService) {
+    public UserController(UserService userService, UserMapper userMapper) {
         this.userService = userService;
+        this.userMapper = userMapper;
     }
 
     @GetMapping("/me")
-    public ResponseEntity<User> authenticatedUser() {
+    public ResponseEntity<UserDto> authenticatedUser() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-
         User currentUser = (User) authentication.getPrincipal();
-
-        return ResponseEntity.ok(currentUser);
+        return ResponseEntity.ok(userMapper.toDto(currentUser));
     }
 
     @GetMapping
-    public ResponseEntity<List<User>> allUsers() {
-        List <User> users = userService.allUsers();
-
+    public ResponseEntity<List<UserDto>> getAllUsers() {
+        List<UserDto> users = userService.allUsers().stream()
+                .map(userMapper::toDto)
+                .collect(Collectors.toList());
         return ResponseEntity.ok(users);
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<UserDto> getUserById(@PathVariable Integer id) {
+        User user = userService.getUserById(id);
+        return ResponseEntity.ok(userMapper.toDto(user));
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<UserDto> updateUser(
+            @PathVariable Integer id,
+            @Valid @RequestBody UserDto userDto
+    ) {
+        User user = userMapper.toEntity(userDto);
+        user.setId(id);
+        User updatedUser = userService.updateUser(id, user);
+        return ResponseEntity.ok(userMapper.toDto(updatedUser));
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteUser(@PathVariable Integer id) {
+        userService.deleteUser(id);
+        return ResponseEntity.noContent().build();
     }
 }
