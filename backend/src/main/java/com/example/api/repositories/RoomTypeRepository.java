@@ -16,8 +16,6 @@ public interface RoomTypeRepository extends CrudRepository<RoomType, Integer> {
 
     void deleteById(Integer id);
 
-    RoomType save(RoomType roomType);
-
     @Override
     List<RoomType> findAll();
 }
