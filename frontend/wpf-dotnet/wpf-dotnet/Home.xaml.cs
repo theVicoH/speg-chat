@@ -104,14 +104,21 @@ namespace wpf_dotnet
             }
         }
 
-        private void ProfileMenuItem_Click(object sender, RoutedEventArgs e)
+        private async void ProfileMenuItem_Click(object sender, RoutedEventArgs e)
         {
-            MessageBox.Show("Ouverture du profil utilisateur", "Profil", MessageBoxButton.OK, MessageBoxImage.Information);
+            ProfileModal profileModal = new ProfileModal(CurrentUser);
+            profileModal.Owner = Window.GetWindow(this);
+            profileModal.ShowDialog();
+            
+            if (profileModal.DialogResult == true)
+            {
+                await LoadCurrentUser();
+            }
         }
 
         private void LogoutMenuItem_Click(object sender, RoutedEventArgs e)
         {
-            var result = MessageBox.Show("Êtes-vous sûr de vouloir vous déconnecter ?", "Confirmation", MessageBoxButton.YesNo, MessageBoxImage.Question);
+            var result = MessageBox.Show("ï¿½tes-vous sï¿½r de vouloir vous dï¿½connecter ?", "Confirmation", MessageBoxButton.YesNo, MessageBoxImage.Question);
             if (result == MessageBoxResult.Yes)
             {
                 Application.Current.Shutdown();
@@ -166,7 +173,7 @@ namespace wpf_dotnet
 
         private void SendMessageButton_Click(object sender, RoutedEventArgs e)
         {
-            MessageBox.Show("Message envoyé");
+            MessageBox.Show("Message envoyï¿½");
         }
         private async Task LoadRooms()
         {

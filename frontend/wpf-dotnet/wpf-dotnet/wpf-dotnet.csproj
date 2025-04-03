@@ -60,6 +60,10 @@
 			<Generator>MSBuild:Compile</Generator>
 			<SubType>Designer</SubType>
 		</Page>
+        <Page Include="ProfileModal.xaml">
+			<Generator>MSBuild:Compile</Generator>
+			<SubType>Designer</SubType>
+		</Page>
 		<Compile Include="Utils\SessionManager.cs" />
 		<Page Include="Login.xaml">
 			<Generator>MSBuild:Compile</Generator>
@@ -83,6 +87,10 @@
 			<SubType>Code</SubType>
 		</Compile>
 		<Compile Include="Login.xaml.cs">
+			<DependentUpon>Login.xaml</DependentUpon>
+			<SubType>Code</SubType>
+		</Compile>
+        <Compile Include="ProfileModal.xaml.cs">
 			<DependentUpon>Login.xaml</DependentUpon>
 			<SubType>Code</SubType>
 		</Compile>
