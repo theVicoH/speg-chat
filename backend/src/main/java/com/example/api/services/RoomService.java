@@ -147,4 +147,11 @@ public class RoomService {
 
         roomRepository.deleteById(id);
     }
+    
+    public List<RoomDto> getPublicRooms() {
+      // Assuming you have a room type with ID 1 for public rooms
+      // You might need to adjust this based on your actual data model
+      Integer publicRoomTypeId = 1; // Replace with your actual public room type ID
+      return getRoomsByTypeId(publicRoomTypeId);
+  }
 }
