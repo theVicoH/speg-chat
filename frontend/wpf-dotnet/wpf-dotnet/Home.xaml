@@ -194,7 +194,7 @@
 							<StackPanel>
 								<StackPanel x:Name="GroupsSection">
 									<TextBlock Text="Salons Publiques" FontWeight="Bold" Margin="20 10" FontSize="16"/>
-									<ItemsControl ItemsSource="{Binding Rooms}">
+									<ItemsControl ItemsSource="{Binding PublicRooms}">
 										<ItemsControl.ItemTemplate>
 											<DataTemplate>
 												<Grid Margin="20 10" Style="{StaticResource ListItemStyle}"
@@ -235,42 +235,32 @@
 
 								<StackPanel x:Name="PersonsSection" Visibility="Collapsed">
 									<TextBlock Text="Messages Privés" FontWeight="Bold" Margin="20 10" FontSize="16"/>
-									<Grid Margin="20 10" Style="{StaticResource ListItemStyle}" PreviewMouseDown="GroupItem_PreviewMouseDown" Tag="BM">
-										<Grid.ColumnDefinitions>
-											<ColumnDefinition Width="Auto"/>
-											<ColumnDefinition Width="*"/>
-											<ColumnDefinition Width="Auto"/>
-										</Grid.ColumnDefinitions>
-										<Border Grid.Column="0" Margin="10 0 0 0" Width="30" Height="30" Background="#E1F9EF">
-											<TextBlock Text="BM" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="#4AF5AA"/>
-										</Border>
-										<Border Grid.Column="1" Padding="5 5" >
-											<StackPanel Grid.Column="1" Margin="10 0 0 0">
-												<TextBlock Text="Bakul Mac" FontWeight="Medium"/>
-												<TextBlock Text="Grateful thoughts" Foreground="#999999" FontSize="12"/>
-											</StackPanel>
-										</Border>
-									</Grid>
-									<Grid Margin="20 10" Style="{StaticResource ListItemStyle}" PreviewMouseDown="GroupItem_PreviewMouseDown" Tag="SM">
-										<Grid.ColumnDefinitions>
-											<ColumnDefinition Width="Auto"/>
-											<ColumnDefinition Width="*"/>
-											<ColumnDefinition Width="Auto"/>
-										</Grid.ColumnDefinitions>
-										<Border Grid.Column="0" Margin="10 0 0 0" Width="30" Height="30" Background="#FFE1E9">
-											<TextBlock Text="SM" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="#F54A6E"/>
-										</Border>
-										<Border Grid.Column="1" Padding="5 5" >
-											<StackPanel Grid.Column="1" Margin="10 0 0 0">
-												<TextBlock Text="Sugin Manteb" FontWeight="Medium"/>
-												<TextBlock Text="Thank you" Foreground="#999999" FontSize="12"/>
-											</StackPanel>
-										</Border>
-										<Border Grid.Column="2" Width="22" Margin="0 0 10 0" Height="22" Background="#F54A6E">
-											<TextBlock Text="1" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="11"/>
-										</Border>
-									</Grid>
-									<Button Content="Show All" Foreground="#6650D8" Margin="20 10" HorizontalAlignment="Center" Background="Transparent" BorderThickness="0" Click="ShowAllPersons_Click"/>
+									<ItemsControl ItemsSource="{Binding PrivateRooms}">
+										<ItemsControl.ItemTemplate>
+											<DataTemplate>
+												<Grid Margin="20 10" Style="{StaticResource ListItemStyle}"
+													  PreviewMouseDown="PersonItem_PreviewMouseDown" Tag="{Binding Name}">
+													<Grid.ColumnDefinitions>
+														<ColumnDefinition Width="Auto"/>
+														<ColumnDefinition Width="*"/>
+														<ColumnDefinition Width="Auto"/>
+													</Grid.ColumnDefinitions>
+													<Border Grid.Column="0" Margin="10 0 0 0" Width="30" Height="30" Background="#E1F9EF">
+														<TextBlock Text="{Binding Name, Converter={StaticResource InitialsConverter}}"
+																   HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="#4AF5AA"/>
+													</Border>
+													<Border Grid.Column="1" Padding="5 5">
+														<StackPanel Grid.Column="1" Margin="10 0 0 0">
+															<TextBlock Text="{Binding Name}" FontWeight="Medium"/>
+															<TextBlock Text="Message privé" Foreground="#999999" FontSize="12"/>
+														</StackPanel>
+													</Border>
+												</Grid>
+											</DataTemplate>
+										</ItemsControl.ItemTemplate>
+									</ItemsControl>
+									<Button Content="Show All" Foreground="#6650D8" Margin="20 10"
+											HorizontalAlignment="Center" Background="Transparent" BorderThickness="0" Click="ShowAllPersons_Click"/>
 								</StackPanel>
 							</StackPanel>
 						</ScrollViewer>
