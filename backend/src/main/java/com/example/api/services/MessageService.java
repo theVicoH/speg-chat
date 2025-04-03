@@ -8,6 +8,7 @@ import com.example.api.entities.User;
 import com.example.api.exception.ResourceNotFoundException;
 import com.example.api.repositories.MessageRepository;
 import com.example.api.repositories.RoomRepository;
+import com.example.api.repositories.UserRoomRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -21,6 +22,7 @@ import java.util.stream.Collectors;
 public class MessageService {
     private final MessageRepository messageRepository;
     private final RoomRepository roomRepository;
+    private final UserRoomRepository userRoomRepository;
 
     @Transactional(readOnly = true)  // Ajoutez cette annotation
     public List<MessageDto> getAllMessages() {
@@ -93,11 +95,28 @@ public class MessageService {
         Message message = messageRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Message not found with id: " + id));
         
-        // Check if the current user is the owner of the message
-        if (!message.getUser().getId().equals(currentUser.getId())) {
-            throw new IllegalStateException("You can only delete your own messages");
+        // Get the room ID from the message
+        Integer roomId = message.getRoom().getId();
+        
+        // Check if the current user is the owner of the message or an admin in the room
+        boolean isMessageOwner = message.getUser().getId().equals(currentUser.getId());
+        boolean isRoomAdmin = isUserRoomAdmin(currentUser.getId(), roomId);
+        
+        if (!isMessageOwner && !isRoomAdmin) {
+            throw new IllegalStateException("You can only delete your own messages or messages in rooms where you are an admin");
         }
         
         messageRepository.delete(message);
+    }
+    
+    // Helper method to check if a user is an admin in a room
+    private boolean isUserRoomAdmin(Integer userId, Integer roomId) {
+        try {
+            // Role ID 1 is for administrators according to your SQL initialization
+            return userRoomRepository.findByUserIdAndRoomIdAndRoleId(userId, roomId, 1).isPresent();
+        } catch (Exception e) {
+            // If there's an error, assume the user is not an admin
+            return false;
+        }
     }
 }
