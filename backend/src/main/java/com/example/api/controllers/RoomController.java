@@ -1,10 +1,12 @@
 package com.example.api.controllers;
 
 import com.example.api.dtos.RoomDto;
+import com.example.api.entities.User;
 import com.example.api.services.RoomService;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
@@ -45,8 +47,12 @@ public class RoomController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteRoom(@PathVariable Integer id) {
-        roomService.deleteRoom(id);
+    public ResponseEntity<Void> deleteRoom(
+            @PathVariable Integer id,
+            Authentication authentication
+    ) {
+        User currentUser = (User) authentication.getPrincipal();
+        roomService.deleteRoom(id, currentUser.getId());
         return ResponseEntity.noContent().build();
     }
 }
