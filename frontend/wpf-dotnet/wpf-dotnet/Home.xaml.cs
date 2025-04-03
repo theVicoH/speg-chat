@@ -11,6 +11,7 @@ using System.Windows.Media;
 using Newtonsoft.Json;
 using wpf_dotnet.Utils;
 using wpf_dotnet;
+using System.Text;
 
 
 namespace wpf_dotnet
@@ -27,6 +28,8 @@ namespace wpf_dotnet
         private ObservableCollection<Room> _privateRooms = new ObservableCollection<Room>();
         public ObservableCollection<Room> PublicRooms => _publicRooms;
         public ObservableCollection<Room> PrivateRooms => _privateRooms;
+        private ObservableCollection<User> _users = new ObservableCollection<User>();
+        public ObservableCollection<User> Users => _users;
 
 
 
@@ -44,6 +47,7 @@ namespace wpf_dotnet
         {
             await LoadCurrentUser();
             await LoadPublicRooms();
+            await LoadUsers();
             await LoadMessages();
         }
 
@@ -122,6 +126,53 @@ namespace wpf_dotnet
             catch (Exception ex)
             {
                 MessageBox.Show($"Erreur chargement messages: {ex.Message}");
+            }
+        }
+        private async Task CreateRoom(string name, int typeId, List<int> userIds)
+        {
+            try
+            {
+                var roomData = new
+                {
+                    name = name,
+                    typeId = typeId,
+                    userIds = userIds
+                };
+
+                var content = new StringContent(JsonConvert.SerializeObject(roomData), Encoding.UTF8, "application/json");
+
+                var response = await _client.PostAsync("http://localhost:8080/rooms", content);
+                response.EnsureSuccessStatusCode();
+
+                // Recharger la liste appropriée
+                if (typeId == 1) await LoadPublicRooms();
+                else await LoadPrivateRooms();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Erreur création salon: {ex.Message}");
+            }
+        }
+        private async Task LoadUsers()
+        {
+            try
+            {
+                _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", SessionManager.Token);
+                var response = await _client.GetAsync("http://localhost:8080/users");
+                response.EnsureSuccessStatusCode();
+                var json = await response.Content.ReadAsStringAsync();
+                var users = JsonConvert.DeserializeObject<List<User>>(json);
+
+                _users.Clear();
+                foreach (var user in users)
+                {
+                    if (user.Id != CurrentUser?.Id) // Exclure l'utilisateur actuel
+                        _users.Add(user);
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Erreur chargement utilisateurs: {ex.Message}");
             }
         }
 
@@ -218,7 +269,30 @@ namespace wpf_dotnet
             MessageBox.Show("Message envoyé");
         }
 
+        private async void AddPublicRoom_Click(object sender, RoutedEventArgs e)
+        {
+            await ShowAddRoomDialog(1);
+        }
 
+        private async void AddPrivateRoom_Click(object sender, RoutedEventArgs e)
+        {
+            await ShowAddRoomDialog(2);
+        }
+
+        private async Task ShowAddRoomDialog(int roomType)
+        {
+            await LoadUsers(); // Charger les utilisateurs à chaque ouverture
+
+            var dialog = new AddRoomDialog(roomType)
+            {
+                Owner = Application.Current.MainWindow
+            };
+
+            if (dialog.ShowDialog() == true)
+            {
+                await CreateRoom(dialog.RoomName, roomType, dialog.SelectedUserIds);
+            }
+        }
 
         public class Message
         {
@@ -240,5 +314,7 @@ namespace wpf_dotnet
             public DateTime CreatedAt { get; set; }
             public DateTime UpdatedAt { get; set; }
         }
+
+
     }
 }

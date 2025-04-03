@@ -56,11 +56,19 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Page Include="AddRoomDialog.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
+    <Compile Include="AddRoomDialog.xaml.cs">
+      <DependentUpon>AddRoomDialog.xaml</DependentUpon>
+    </Compile>
     <Compile Include="CurrentUser.cs" />
+    <Compile Include="User.cs" />
     <Compile Include="Utils\SessionManager.cs" />
     <Page Include="Login.xaml">
       <Generator>MSBuild:Compile</Generator>

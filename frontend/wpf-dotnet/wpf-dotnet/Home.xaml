@@ -193,7 +193,10 @@
 						<ScrollViewer VerticalScrollBarVisibility="Auto">
 							<StackPanel>
 								<StackPanel x:Name="GroupsSection">
-									<TextBlock Text="Salons Publiques" FontWeight="Bold" Margin="20 10" FontSize="16"/>
+									<StackPanel Orientation="Horizontal" Margin="20 10">
+										<TextBlock Text="Salons Publiques" FontWeight="Bold" FontSize="16"/>
+										<Button Content="+" Margin="75 0 0 0" Click="AddPublicRoom_Click" Height="30" Width="29" FontSize="16"/>
+									</StackPanel>
 									<ItemsControl ItemsSource="{Binding PublicRooms}">
 										<ItemsControl.ItemTemplate>
 											<DataTemplate>
@@ -234,7 +237,11 @@
 								</StackPanel>
 
 								<StackPanel x:Name="PersonsSection" Visibility="Collapsed">
-									<TextBlock Text="Messages Privés" FontWeight="Bold" Margin="20 10" FontSize="16"/>
+									<StackPanel Orientation="Horizontal" Margin="20 10">
+										<TextBlock Text="Messages Privés" FontWeight="Bold" FontSize="16"/>
+										<Button Content="+" Margin="75 0 0 0" Click="AddPrivateRoom_Click" Height="30" Width="29" FontSize="16"/>
+									</StackPanel>
+									
 									<ItemsControl ItemsSource="{Binding PrivateRooms}">
 										<ItemsControl.ItemTemplate>
 											<DataTemplate>
