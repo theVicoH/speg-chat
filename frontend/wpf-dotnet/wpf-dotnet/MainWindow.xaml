@@ -8,7 +8,6 @@
         Title="SPEG-Chat" Height="830" Width="1250" ResizeMode="NoResize" WindowStartupLocation="CenterScreen">
 
 	<Window.Resources>
-		<!-- Couleurs harmonisées -->
 		<SolidColorBrush x:Key="PrimaryColor" Color="#6650D8"/>
 		<SolidColorBrush x:Key="SecondaryColor" Color="#F8F9FB"/>
 		<SolidColorBrush x:Key="TextColor" Color="#333333"/>
@@ -19,7 +18,6 @@
 		<SolidColorBrush x:Key="AvatarBlue" Color="#E1E4F9"/>
 		<SolidColorBrush x:Key="AvatarBlueText" Color="#4A72F5"/>
 
-		<!-- Styles communs -->
 		<Style TargetType="Button" x:Key="MenuButtonStyle">
 			<Setter Property="Background" Value="Transparent"/>
 			<Setter Property="BorderThickness" Value="0"/>
@@ -29,8 +27,7 @@
 			<Setter Property="Template">
 				<Setter.Value>
 					<ControlTemplate TargetType="Button">
-						<Border Background="{TemplateBinding Background}"
-                               Padding="{TemplateBinding Padding}">
+						<Border Background="{TemplateBinding Background}" Padding="{TemplateBinding Padding}">
 							<ContentPresenter HorizontalAlignment="Left" VerticalAlignment="Center"/>
 						</Border>
 					</ControlTemplate>
@@ -67,7 +64,6 @@
 			<Setter Property="Height" Value="30"/>
 		</Style>
 
-		<!-- Menu Settings -->
 		<Style x:Key="SettingsMenuItemStyle" TargetType="MenuItem">
 			<Setter Property="Foreground" Value="{StaticResource TextColor}"/>
 			<Setter Property="FontSize" Value="14"/>
@@ -83,14 +79,8 @@
 									<ColumnDefinition Width="Auto"/>
 									<ColumnDefinition Width="*"/>
 								</Grid.ColumnDefinitions>
-								<ContentPresenter Grid.Column="1"
-                                                ContentSource="Header"
-                                                RecognizesAccessKey="True"
-                                                VerticalAlignment="Center"
-                                                Margin="5,0,0,0"/>
-								<ContentPresenter Grid.Column="0"
-                                                ContentSource="Icon"
-                                                VerticalAlignment="Center"/>
+								<ContentPresenter Grid.Column="1" ContentSource="Header" RecognizesAccessKey="True" VerticalAlignment="Center" Margin="5,0,0,0"/>
+								<ContentPresenter Grid.Column="0" ContentSource="Icon" VerticalAlignment="Center"/>
 							</Grid>
 						</Border>
 						<ControlTemplate.Triggers>
@@ -104,17 +94,16 @@
 			</Setter>
 		</Style>
 
-		<ContextMenu x:Key="SettingsMenu"
-                    Width="150"
-                    Background="{StaticResource White}"
-                    BorderBrush="{StaticResource LightGray}"
-                    BorderThickness="1"
-                    HasDropShadow="True"
-                    Padding="0">
+		<ContextMenu x:Key="SettingsMenu" Width="150" Background="{StaticResource White}" BorderBrush="{StaticResource LightGray}" BorderThickness="1" HasDropShadow="True" Padding="0">
 			<MenuItem Header="Profil" Click="ProfileMenuItem_Click" Style="{StaticResource SettingsMenuItemStyle}"/>
 			<Separator Margin="0"/>
 			<MenuItem Header="Logout" Click="LogoutMenuItem_Click" Style="{StaticResource SettingsMenuItemStyle}"/>
 		</ContextMenu>
+
+		<local:UserIdToAlignmentConverter x:Key="AlignmentConverter" xmlns:local="clr-namespace:wpf_dotnet"/>
+		<local:UserIdToVisibilityConverter x:Key="VisibilityConverter"/>
+		<local:UserIdToInverseVisibilityConverter x:Key="VisibilityInverseConverter"/>
+		<local:InitialsConverter x:Key="InitialsConverter"/>
 	</Window.Resources>
 
 	<Grid>
@@ -123,7 +112,6 @@
 			<ColumnDefinition Width="*"/>
 		</Grid.ColumnDefinitions>
 
-		<!-- Left Panel -->
 		<Grid Background="#6650D8">
 			<Grid.RowDefinitions>
 				<RowDefinition Height="Auto"/>
@@ -131,9 +119,7 @@
 				<RowDefinition Height="Auto"/>
 			</Grid.RowDefinitions>
 
-			<!-- Navigation Menu -->
 			<StackPanel Grid.Row="1" Margin="0 20 0 0">
-				<!-- Salon Button -->
 				<Button Style="{StaticResource MenuButtonStyle}" Margin="10 0" Height="50" Click="ShipmentButton_Click">
 					<Grid>
 						<Grid.ColumnDefinitions>
@@ -142,15 +128,13 @@
 						</Grid.ColumnDefinitions>
 						<StackPanel Grid.Column="1" Orientation="Horizontal">
 							<Border Background="Transparent" BorderThickness="0 0 0 0" Width="30">
-								<Path Fill="White" Data="M0,0 L12,0 L12,8 L6,6 L0,8 Z"
-                                      Stretch="Uniform" Width="16" Height="16" VerticalAlignment="Center"/>
+								<Path Fill="White" Data="M0,0 L12,0 L12,8 L6,6 L0,8 Z" Stretch="Uniform" Width="16" Height="16" VerticalAlignment="Center"/>
 							</Border>
 							<TextBlock Text="Salons" Foreground="White" VerticalAlignment="Center"/>
 						</StackPanel>
 					</Grid>
 				</Button>
 
-				<!-- Message Button -->
 				<Button Style="{StaticResource MenuButtonStyle}" Margin="10 0" Height="50" Click="UsersButton_Click">
 					<Grid>
 						<Grid.ColumnDefinitions>
@@ -159,8 +143,7 @@
 						</Grid.ColumnDefinitions>
 						<StackPanel Grid.Column="1" Orientation="Horizontal">
 							<Border Background="Transparent" BorderThickness="0 0 0 0" Width="30">
-								<Path Fill="White" Data="M0,0 L12,0 L12,9 L9,9 L9,12 L4,9 L0,9 Z"
-									  Stretch="Uniform" Width="16" Height="16" VerticalAlignment="Center"/>
+								<Path Fill="White" Data="M0,0 L12,0 L12,9 L9,9 L9,12 L4,9 L0,9 Z" Stretch="Uniform" Width="16" Height="16" VerticalAlignment="Center"/>
 							</Border>
 							<TextBlock Text="Messages" Foreground="White" VerticalAlignment="Center"/>
 						</StackPanel>
@@ -168,10 +151,8 @@
 				</Button>
 			</StackPanel>
 
-			<!-- Bottom Settings Panel -->
 			<StackPanel Grid.Row="2" Margin="0 0 0 20">
-				<Button Style="{StaticResource MenuButtonStyle}" Margin="10 0" Height="50"
-						Click="SettingsButton_Click" ContextMenu="{StaticResource SettingsMenu}">
+				<Button Style="{StaticResource MenuButtonStyle}" Margin="10 0" Height="50" Click="SettingsButton_Click" ContextMenu="{StaticResource SettingsMenu}">
 					<Grid>
 						<Grid.ColumnDefinitions>
 							<ColumnDefinition Width="5"/>
@@ -179,9 +160,7 @@
 						</Grid.ColumnDefinitions>
 						<StackPanel Grid.Column="1" Orientation="Horizontal">
 							<Border Background="Transparent" BorderThickness="0 0 0 0" Width="30">
-								<Path Fill="White"
-									  Data="M14,8.5 L14,7.5 L12.657,7.5 L12.457,6.695 L13.364,5.843 L12.657,5.136 L11.843,6.007 L11,5.807 L11,4.5 L10,4.5 L10,5.807 L9.157,6.007 L8.343,5.136 L7.636,5.843 L8.543,6.695 L8.343,7.5 L7,7.5 L7,8.5 L8.343,8.5 L8.543,9.305 L7.636,10.157 L8.343,10.864 L9.157,9.993 L10,10.193 L10,11.5 L11,11.5 L11,10.193 L11.843,9.993 L12.657,10.864 L13.364,10.157 L12.457,9.305 L12.657,8.5 Z M10.5,9 C9.672,9 9,8.328 9,7.5 C9,6.672 9.672,6 10.5,6 C11.328,6 12,6.672 12,7.5 C12,8.328 11.328,9 10.5,9 Z"
-									  Stretch="Uniform" Width="16" Height="16" VerticalAlignment="Center"/>
+								<Path Fill="White" Data="M14,8.5 L14,7.5 L12.657,7.5 L12.457,6.695 L13.364,5.843 L12.657,5.136 L11.843,6.007 L11,5.807 L11,4.5 L10,4.5 L10,5.807 L9.157,6.007 L8.343,5.136 L7.636,5.843 L8.543,6.695 L8.343,7.5 L7,7.5 L7,8.5 L8.343,8.5 L8.543,9.305 L7.636,10.157 L8.343,10.864 L9.157,9.993 L10,10.193 L10,11.5 L11,11.5 L11,10.193 L11.843,9.993 L12.657,10.864 L13.364,10.157 L12.457,9.305 L12.657,8.5 Z M10.5,9 C9.672,9 9,8.328 9,7.5 C9,6.672 9.672,6 10.5,6 C11.328,6 12,6.672 12,7.5 C12,8.328 11.328,9 10.5,9 Z" Stretch="Uniform" Width="16" Height="16" VerticalAlignment="Center"/>
 							</Border>
 							<TextBlock Text="Settings" Foreground="White" VerticalAlignment="Center"/>
 						</StackPanel>
@@ -190,96 +169,85 @@
 			</StackPanel>
 		</Grid>
 
-		<!-- Main Content Area -->
 		<Grid Grid.Column="1" Background="#F8F9FB">
 			<Grid.RowDefinitions>
 				<RowDefinition Height="Auto"/>
 				<RowDefinition Height="*"/>
 			</Grid.RowDefinitions>
 
-			<!-- Chat Content Area -->
 			<Grid Grid.Row="1">
 				<Grid.RowDefinitions>
 					<RowDefinition Height="*"/>
 					<RowDefinition Height="Auto"/>
 				</Grid.RowDefinitions>
 
-				<!-- Left: Groups and Persons Lists -->
 				<Grid>
 					<Grid.ColumnDefinitions>
 						<ColumnDefinition Width="300"/>
 						<ColumnDefinition Width="*"/>
 					</Grid.ColumnDefinitions>
 
-					<!-- Contacts and Groups List -->
 					<Border Grid.Column="0" BorderBrush="#EEEEEE" BorderThickness="0 0 1 0">
 						<ScrollViewer VerticalScrollBarVisibility="Auto">
 							<StackPanel>
-								<!-- Groups Section (visible par défaut) -->
 								<StackPanel x:Name="GroupsSection">
 									<TextBlock Text="Salons Publiques" FontWeight="Bold" Margin="20 10" FontSize="16"/>
-
 									<Grid Margin="20 10" Style="{StaticResource ListItemStyle}" PreviewMouseDown="GroupItem_PreviewMouseDown" Tag="Pars Habib">
 										<Grid.ColumnDefinitions>
 											<ColumnDefinition Width="Auto"/>
 											<ColumnDefinition Width="*"/>
 											<ColumnDefinition Width="Auto"/>
 										</Grid.ColumnDefinitions>
-
-										<Border Grid.Column="0" Width="30" Height="30" Background="#E1E4F9">
+										<Border Grid.Column="0" Margin="10 0 0 0" Width="30" Height="30" Background="#E1E4F9">
 											<TextBlock Text="PH" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="#4A72F5"/>
 										</Border>
-
-										<StackPanel Grid.Column="1" Margin="10 0 0 0">
-											<TextBlock Text="Pars Habib" FontWeight="Medium"/>
-											<TextBlock Text="Okay, Cool!" Foreground="#999999" FontSize="12"/>
-										</StackPanel>
-
-										<Border Grid.Column="2" Width="22" Height="22" Background="#4A90E2">
+										<Border Grid.Column="1" Padding="5 5" >
+											<StackPanel Grid.Column="1" Margin="10 0 0 0">
+												<TextBlock Text="Pars Habib" FontWeight="Medium"/>
+												<TextBlock Text="Okay, Cool!" Foreground="#999999" FontSize="12"/>
+											</StackPanel>
+										</Border>
+										
+										<Border Grid.Column="2" Width="22" Margin="0 0 10 0" Height="22" Background="#4A90E2">
 											<TextBlock Text="2" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="11"/>
 										</Border>
 									</Grid>
-
-									<Grid Margin="20 10" Style="{StaticResource ListItemStyle}" PreviewMouseDown="GroupItem_PreviewMouseDown" Tag="Moonlab Std">
+									<Grid Margin="20 10"   Style="{StaticResource ListItemStyle}" PreviewMouseDown="GroupItem_PreviewMouseDown" Tag="Moonlab Std">
 										<Grid.ColumnDefinitions>
 											<ColumnDefinition Width="Auto"/>
 											<ColumnDefinition Width="*"/>
 											<ColumnDefinition Width="Auto"/>
 										</Grid.ColumnDefinitions>
-
-										<Border Grid.Column="0" Width="30" Height="30" Background="#E1F3F9">
+										<Border Grid.Column="0" Width="30" Margin="10 0 0 0" Height="30" Background="#E1F3F9">
 											<TextBlock Text="MS" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="#4AD5F5"/>
 										</Border>
-
-										<StackPanel Grid.Column="1" Margin="10 0 0 0">
-											<TextBlock Text="Moonlab Std" FontWeight="Medium"/>
-											<TextBlock Text="Suvun boa!" Foreground="#999999" FontSize="12"/>
-										</StackPanel>
+										<Border Grid.Column="1" Padding="5 5" >
+											<StackPanel Grid.Column="1" Margin="10 0 0 0" >
+												<TextBlock Text="Moonlab Std" FontWeight="Medium" />
+												<TextBlock Text="Suvun boa!" Foreground="#999999" FontSize="12" />
+											</StackPanel>
+										</Border>
 									</Grid>
-
-									<Button Content="Show All" Foreground="#6650D8" Margin="20 10" HorizontalAlignment="Center"
-                                            Background="Transparent" BorderThickness="0" Click="ShowAllGroups_Click"/>
+									<Button Content="Show All" Foreground="#6650D8" Margin="20 10" HorizontalAlignment="Center" Background="Transparent" BorderThickness="0" Click="ShowAllGroups_Click"/>
 								</StackPanel>
 
-								<!-- Persons Section (cachée par défaut) -->
 								<StackPanel x:Name="PersonsSection" Visibility="Collapsed">
 									<TextBlock Text="Messages Privés" FontWeight="Bold" Margin="20 10" FontSize="16"/>
-
 									<Grid Margin="20 10" Style="{StaticResource ListItemStyle}" PreviewMouseDown="GroupItem_PreviewMouseDown" Tag="BM">
 										<Grid.ColumnDefinitions>
 											<ColumnDefinition Width="Auto"/>
 											<ColumnDefinition Width="*"/>
 											<ColumnDefinition Width="Auto"/>
 										</Grid.ColumnDefinitions>
-
-										<Border Grid.Column="0" Width="30" Height="30" Background="#E1F9EF">
+										<Border Grid.Column="0" Margin="10 0 0 0" Width="30" Height="30" Background="#E1F9EF">
 											<TextBlock Text="BM" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="#4AF5AA"/>
 										</Border>
-
+										<Border Grid.Column="1" Padding="5 5" >
 										<StackPanel Grid.Column="1" Margin="10 0 0 0">
 											<TextBlock Text="Bakul Mac" FontWeight="Medium"/>
 											<TextBlock Text="Grateful thoughts" Foreground="#999999" FontSize="12"/>
 										</StackPanel>
+										</Border>
 									</Grid>
 									<Grid Margin="20 10" Style="{StaticResource ListItemStyle}" PreviewMouseDown="GroupItem_PreviewMouseDown" Tag="SM">
 										<Grid.ColumnDefinitions>
@@ -287,45 +255,25 @@
 											<ColumnDefinition Width="*"/>
 											<ColumnDefinition Width="Auto"/>
 										</Grid.ColumnDefinitions>
-
-										<Border Grid.Column="0" Width="30" Height="30" Background="#FFE1E9">
+										<Border Grid.Column="0" Margin="10 0 0 0" Width="30" Height="30" Background="#FFE1E9">
 											<TextBlock Text="SM" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="#F54A6E"/>
 										</Border>
-
+										<Border Grid.Column="1" Padding="5 5" >
 										<StackPanel Grid.Column="1" Margin="10 0 0 0">
 											<TextBlock Text="Sugin Manteb" FontWeight="Medium"/>
 											<TextBlock Text="Thank you" Foreground="#999999" FontSize="12"/>
 										</StackPanel>
-
-										<Border Grid.Column="2" Width="22" Height="22" Background="#F54A6E">
+										</Border>
+										<Border Grid.Column="2" Width="22" Margin="0 0 10 0" Height="22" Background="#F54A6E">
 											<TextBlock Text="1" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="11"/>
 										</Border>
 									</Grid>
-
-									<Grid Margin="20 10" Style="{StaticResource ListItemStyle}" PreviewMouseDown="GroupItem_PreviewMouseDown" Tag="BM">
-										<Grid.ColumnDefinitions>
-											<ColumnDefinition Width="Auto"/>
-											<ColumnDefinition Width="*"/>
-											<ColumnDefinition Width="Auto"/>
-										</Grid.ColumnDefinitions>
-
-										<Border Grid.Column="0" Width="30" Height="30" Background="#E1F9EF">
-											<TextBlock Text="BM" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="#4AF5AA"/>
-										</Border>
-
-										<StackPanel Grid.Column="1" Margin="10 0 0 0">
-											<TextBlock Text="Bakul Mac" FontWeight="Medium"/>
-											<TextBlock Text="Grateful thoughts" Foreground="#999999" FontSize="12"/>
-										</StackPanel>
-									</Grid>
-									<Button Content="Show All" Foreground="#6650D8" Margin="20 10" HorizontalAlignment="Center"
-                                            Background="Transparent" BorderThickness="0" Click="ShowAllPersons_Click"/>
+									<Button Content="Show All" Foreground="#6650D8" Margin="20 10" HorizontalAlignment="Center" Background="Transparent" BorderThickness="0" Click="ShowAllPersons_Click"/>
 								</StackPanel>
 							</StackPanel>
 						</ScrollViewer>
 					</Border>
 
-					<!-- Chat Messages Area -->
 					<Grid Grid.Column="1">
 						<Grid.RowDefinitions>
 							<RowDefinition Height="Auto"/>
@@ -333,13 +281,11 @@
 							<RowDefinition Height="Auto"/>
 						</Grid.RowDefinitions>
 
-						<!-- Chat Header -->
 						<Grid Grid.Row="0" Margin="20 10">
 							<Grid.ColumnDefinitions>
 								<ColumnDefinition Width="*"/>
 								<ColumnDefinition Width="Auto"/>
 							</Grid.ColumnDefinitions>
-
 							<StackPanel Grid.Column="0" Orientation="Horizontal">
 								<TextBlock Text="Moonlab Std" FontWeight="Bold" FontSize="16" VerticalAlignment="Center"/>
 								<StackPanel Orientation="Horizontal" Margin="20 0 0 0">
@@ -355,49 +301,46 @@
 									<TextBlock Text="and 3 others" Foreground="#999999" FontSize="12" VerticalAlignment="Center" Margin="5 0 0 0"/>
 								</StackPanel>
 							</StackPanel>
-
 							<Button Grid.Column="1" Width="30" Height="30" Background="Transparent" BorderThickness="0" Click="ChatMenuButton_Click">
 								<Path Data="M0,0 L12,0 L12,2 L0,2 Z M0,5 L12,5 L12,7 L0,7 Z M0,10 L12,10 L12,12 L0,12 Z" Fill="Black" Stretch="Uniform" Width="16"/>
 							</Button>
 						</Grid>
 
-						<!-- Messages List -->
 						<ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
-							<StackPanel Margin="20 0">
-								<!-- Time Indicator -->
-								<TextBlock Text="Yesterday" Foreground="#999999" HorizontalAlignment="Center" Margin="0 10"/>
-
-								<!-- Incoming Message -->
-								<Grid Margin="0 10" HorizontalAlignment="Left">
-									<Grid.ColumnDefinitions>
-										<ColumnDefinition Width="Auto"/>
-										<ColumnDefinition Width="*"/>
-									</Grid.ColumnDefinitions>
-
-									<Border Grid.Column="0" Width="40" Height="40" Background="#FFE1E9" >
-										<TextBlock Text="MC" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="#F54A6E"/>
-									</Border>
-
-									<StackPanel Grid.Column="1" Margin="10 0 0 0">
-										<TextBlock Text="Maud Carson" FontWeight="Medium"/>
-										<Border Background="#FF6B81" Padding="15 10" Margin="0 5 0 0" >
-											<TextBlock Text="Hello my friends" Foreground="White"/>
-										</Border>
-										<TextBlock Text="3:10 PM" Foreground="#999999" FontSize="11" Margin="0 5 0 0"/>
-									</StackPanel>
-								</Grid>
-
-								<!-- Outgoing Message -->
-								<StackPanel HorizontalAlignment="Right" Margin="0 10">
-									<Border Background="#EFEFEF" Padding="15 10" >
-										<TextBlock Text="Hi Maud. Are you ok?" Foreground="#666666" TextAlignment="Right"/>
-									</Border>
-									<TextBlock Text="4:15 PM" Foreground="#999999" FontSize="11" Margin="0 5 0 0" HorizontalAlignment="Right"/>
-								</StackPanel>
-							</StackPanel>
+							<ItemsControl x:Name="MessagesList" Margin="20 0">
+								<ItemsControl.ItemTemplate>
+									<DataTemplate>
+										<Grid Margin="0 10" HorizontalAlignment="{Binding UserId, Converter={StaticResource AlignmentConverter}}">
+											<Grid HorizontalAlignment="Left" Visibility="{Binding UserId, Converter={StaticResource VisibilityConverter}}">
+												<Grid.ColumnDefinitions>
+													<ColumnDefinition Width="Auto"/>
+													<ColumnDefinition Width="*"/>
+												</Grid.ColumnDefinitions>
+												<Border Grid.Column="0" Width="40" Height="40" Background="#FFE1E9">
+													<TextBlock Text="{Binding Username, Converter={StaticResource InitialsConverter}}" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="#F54A6E"/>
+												</Border>
+												<StackPanel Grid.Column="1" Margin="10 0 0 0">
+													<TextBlock Text="{Binding Username}" FontWeight="Medium"/>
+													<Border Background="#FF6B81" Padding="15 10" Margin="0 5 0 0">
+														<TextBlock Text="{Binding Content}" Foreground="White"/>
+													</Border>
+													<TextBlock Text="{Binding CreatedAt, StringFormat='HH:mm'}" Foreground="#999999" FontSize="11" Margin="0 5 0 0"/>
+												</StackPanel>
+											</Grid>
+											<StackPanel HorizontalAlignment="Right" Visibility="{Binding UserId, Converter={StaticResource VisibilityInverseConverter}}">
+												<Border Background="#EFEFEF" Padding="15 10">
+													<TextBlock Text="{Binding Content}" Foreground="#666666" TextAlignment="Right"/>
+												</Border>
+												<StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+													<TextBlock Text="{Binding CreatedAt, StringFormat='HH:mm'}" Foreground="#999999" FontSize="11" Margin="0 5 5 0"/>
+												</StackPanel>
+											</StackPanel>
+										</Grid>
+									</DataTemplate>
+								</ItemsControl.ItemTemplate>
+							</ItemsControl>
 						</ScrollViewer>
 
-						<!-- Message Input Area -->
 						<Grid Grid.Row="2" Margin="20 10">
 							<Grid.ColumnDefinitions>
 								<ColumnDefinition Width="*"/>
@@ -406,11 +349,9 @@
 								<ColumnDefinition Width="Auto"/>
 								<ColumnDefinition Width="Auto"/>
 							</Grid.ColumnDefinitions>
-
 							<Border Grid.Column="0" Background="White" BorderBrush="#EEEEEE" BorderThickness="1" >
 								<TextBox Text="Type your message ..." Foreground="#AAAAAA" BorderThickness="0" Padding="10 5" VerticalContentAlignment="Center"/>
 							</Border>
-
 							<Button Grid.Column="4" Width="30" Height="30" Margin="5 0 0 0" Background="#6650D8" BorderThickness="0"  Click="SendMessageButton_Click">
 								<Path Data="M0,6 L12,6 L6,0 M6,12 L12,6" Stroke="White" StrokeThickness="2" Stretch="Uniform" Width="16"/>
 							</Button>
