@@ -31,6 +31,11 @@ public class RoomController {
         return ResponseEntity.ok(roomService.getRoomById(id));
     }
 
+    @GetMapping("/type/{typeId}")
+    public ResponseEntity<List<RoomDto>> getRoomsByTypeId(@PathVariable Integer typeId) {
+        return ResponseEntity.ok(roomService.getRoomsByTypeId(typeId));
+    }
+
     @PostMapping
     public ResponseEntity<RoomDto> createRoom(
             @Valid @RequestBody RoomDto roomDto
