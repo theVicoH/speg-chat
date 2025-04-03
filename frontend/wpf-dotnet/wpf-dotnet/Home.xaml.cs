@@ -10,6 +10,7 @@ using System.Windows.Input;
 using System.Windows.Media;
 using Newtonsoft.Json;
 using wpf_dotnet.Utils;
+using wpf_dotnet;
 
 
 namespace wpf_dotnet
@@ -22,13 +23,17 @@ namespace wpf_dotnet
         private ObservableCollection<Message> _messages = new ObservableCollection<Message>();
         public static Home Instance { get; private set; }
         public CurrentUser CurrentUser { get; private set; }
-        private ObservableCollection<Room> _rooms = new ObservableCollection<Room>();
-        public ObservableCollection<Room> Rooms => _rooms;
+        private ObservableCollection<Room> _publicRooms = new ObservableCollection<Room>();
+        private ObservableCollection<Room> _privateRooms = new ObservableCollection<Room>();
+        public ObservableCollection<Room> PublicRooms => _publicRooms;
+        public ObservableCollection<Room> PrivateRooms => _privateRooms;
+
 
 
         public Home()
         {
             InitializeComponent();
+            //MessageBox.Show(SessionManager.Token);
             Instance = this;
             DataContext = this;
             Loaded += MainWindow_Loaded;
@@ -38,7 +43,7 @@ namespace wpf_dotnet
         private async void MainWindow_Loaded(object sender, RoutedEventArgs e)
         {
             await LoadCurrentUser();
-            await LoadRooms();
+            await LoadPublicRooms();
             await LoadMessages();
         }
 
@@ -57,7 +62,48 @@ namespace wpf_dotnet
                 MessageBox.Show($"Erreur chargement utilisateur: {ex.Message}");
             }
         }
+        private async Task LoadPublicRooms()
+        {
+            try
+            {
+                _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", SessionManager.Token);
+                var response = await _client.GetAsync("http://localhost:8080/rooms/type/1");
+                response.EnsureSuccessStatusCode();
+                var json = await response.Content.ReadAsStringAsync();
+                var rooms = JsonConvert.DeserializeObject<List<Room>>(json);
 
+                _publicRooms.Clear();
+                foreach (var room in rooms)
+                {
+                    _publicRooms.Add(room);
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Erreur chargement des salons publics: {ex.Message}");
+            }
+        }
+        private async Task LoadPrivateRooms()
+        {
+            try
+            {
+                _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", SessionManager.Token);
+                var response = await _client.GetAsync("http://localhost:8080/rooms/type/2");
+                response.EnsureSuccessStatusCode();
+                var json = await response.Content.ReadAsStringAsync();
+                var rooms = JsonConvert.DeserializeObject<List<Room>>(json);
+
+                _privateRooms.Clear();
+                foreach (var room in rooms)
+                {
+                    _privateRooms.Add(room);
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Erreur chargement des messages privés: {ex.Message}");
+            }
+        }
         private async Task LoadMessages(int roomId = 2)
         {
             try
@@ -79,16 +125,18 @@ namespace wpf_dotnet
             }
         }
 
-        private void ShipmentButton_Click(object sender, RoutedEventArgs e)
+        private async void ShipmentButton_Click(object sender, RoutedEventArgs e)
         {
             GroupsSection.Visibility = Visibility.Visible;
             PersonsSection.Visibility = Visibility.Collapsed;
+            await LoadPublicRooms();
         }
 
-        private void UsersButton_Click(object sender, RoutedEventArgs e)
+        private async void UsersButton_Click(object sender, RoutedEventArgs e)
         {
             PersonsSection.Visibility = Visibility.Visible;
             GroupsSection.Visibility = Visibility.Collapsed;
+            await LoadPrivateRooms();
         }
 
         private void SettingsButton_Click(object sender, RoutedEventArgs e)
@@ -118,7 +166,7 @@ namespace wpf_dotnet
             }
         }
 
-        private void GroupItem_PreviewMouseDown(object sender, MouseButtonEventArgs e)
+        private async void GroupItem_PreviewMouseDown(object sender, MouseButtonEventArgs e)
         {
             var grid = sender as Grid;
             if (grid?.DataContext is Room selectedRoom)
@@ -131,24 +179,25 @@ namespace wpf_dotnet
                 _lastSelectedGroup = grid;
 
 
-                LoadMessages(selectedRoom.Id);
+                await LoadMessages(selectedRoom.Id);
             }
         }
 
-        private void PersonItem_PreviewMouseDown(object sender, MouseButtonEventArgs e)
+        private async void PersonItem_PreviewMouseDown(object sender, MouseButtonEventArgs e)
         {
             var grid = sender as Grid;
-            if (grid == null) return;
-            if (_lastSelectedPerson != null)
+            if (grid?.DataContext is Room selectedRoom)
             {
-                _lastSelectedPerson.Background = Brushes.Transparent;
-            }
-            grid.Background = new SolidColorBrush(Color.FromArgb(30, 0, 0, 0));
-            _lastSelectedPerson = grid;
-            string personName = grid.Tag?.ToString() ?? "Unknown person";
-            MessageBox.Show($"Person selected: {personName}");
-        }
+                if (_lastSelectedPerson != null)
+                {
+                    _lastSelectedPerson.Background = Brushes.Transparent;
+                }
+                grid.Background = new SolidColorBrush(Color.FromArgb(30, 0, 0, 0));
+                _lastSelectedPerson = grid;
 
+                await LoadMessages(selectedRoom.Id);
+            }
+        }
         private void ShowAllGroups_Click(object sender, RoutedEventArgs e)
         {
             MessageBox.Show("Affichage de tous les salons");
@@ -168,52 +217,28 @@ namespace wpf_dotnet
         {
             MessageBox.Show("Message envoyé");
         }
-        private async Task LoadRooms()
+
+
+
+        public class Message
         {
-            try
-            {
-                _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", SessionManager.Token);
-                var response = await _client.GetAsync("http://localhost:8080/rooms");
-                response.EnsureSuccessStatusCode();
-                var json = await response.Content.ReadAsStringAsync();
-                var rooms = JsonConvert.DeserializeObject<List<Room>>(json);
-
-                _rooms.Clear();
-                foreach (var room in rooms)
-                {
-                    _rooms.Add(room);
-                }
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"Erreur chargement des salons: {ex.Message}");
-            }
+            public int Id { get; set; }
+            public string Content { get; set; }
+            public int UserId { get; set; }
+            public string Username { get; set; }
+            public DateTime CreatedAt { get; set; }
+            public int RoomId { get; set; }
         }
-    }
 
-
-    public class Message
-    {
-        public int Id { get; set; }
-        public string Content { get; set; }
-        public int UserId { get; set; }
-        public string Username { get; set; }
-        public DateTime CreatedAt { get; set; }
-        public int RoomId { get; set; }
-    }
-
-    public class CurrentUser
-    {
-        public int Id { get; set; }
-        public string Username { get; set; }
-    }
-    public class Room
-    {
-        public int Id { get; set; }
-        public string Name { get; set; }
-        public int TypeId { get; set; }
-        public int CreatorId { get; set; }
-        public DateTime CreatedAt { get; set; }
-        public DateTime UpdatedAt { get; set; }
+        public class Room
+        {
+            public int Id { get; set; }
+            public string Name { get; set; }
+            public int TypeId { get; set; }
+            public List<int> UserIds { get; set; }
+            public int CreatorId { get; set; }
+            public DateTime CreatedAt { get; set; }
+            public DateTime UpdatedAt { get; set; }
+        }
     }
 }
