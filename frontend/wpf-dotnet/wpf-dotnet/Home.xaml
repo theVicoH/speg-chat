@@ -1,0 +1,14 @@
+<Page x:Class="wpf_dotnet.Home"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      Title="Home">
+
+    <Grid Background="LightBlue">
+        <TextBlock Text="Hassan met ton code ici 🥳"
+            FontSize="24"
+            FontWeight="Bold"
+            HorizontalAlignment="Center"
+            VerticalAlignment="Center"
+        />
+    </Grid>
+</Page>

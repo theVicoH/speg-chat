@@ -23,6 +23,7 @@ namespace wpf_dotnet
         public MainWindow()
         {
             InitializeComponent();
+            MainFrame.Navigate(new Login());
         }
     }
 }
