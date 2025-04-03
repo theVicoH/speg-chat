@@ -82,9 +82,14 @@ public class RoomService {
         return roomMapper.toDto(savedRoom);
     }
 
-    public RoomDto updateRoom(Integer id, RoomDto roomDto) {
+    public RoomDto updateRoom(Integer id, RoomDto roomDto, Integer currentUserId) {
         Room room = roomRepository.findById(id)
                 .orElseThrow(() -> new ApiException("Room not found", HttpStatus.NOT_FOUND));
+        
+        // Check if the current user is the creator of the room
+        if (!room.getCreator().getId().equals(currentUserId)) {
+            throw new ApiException("Only the room creator can update this room", HttpStatus.FORBIDDEN);
+        }
         
         roomMapper.updateEntity(room, roomDto);
         Room updatedRoom = roomRepository.save(room);

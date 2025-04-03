@@ -41,9 +41,11 @@ public class RoomController {
     @PutMapping("/{id}")
     public ResponseEntity<RoomDto> updateRoom(
             @PathVariable Integer id,
-            @Valid @RequestBody RoomDto roomDto
+            @Valid @RequestBody RoomDto roomDto,
+            Authentication authentication
     ) {
-        return ResponseEntity.ok(roomService.updateRoom(id, roomDto));
+        User currentUser = (User) authentication.getPrincipal();
+        return ResponseEntity.ok(roomService.updateRoom(id, roomDto, currentUser.getId()));
     }
 
     @DeleteMapping("/{id}")
