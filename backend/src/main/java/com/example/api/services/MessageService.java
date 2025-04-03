@@ -2,6 +2,8 @@ package com.example.api.services;
 
 import com.example.api.dtos.MessageDto;
 import com.example.api.dtos.MessageRequest;
+import com.example.api.entities.UserRoom;
+import com.example.api.repositories.UserRoomRepository;
 import com.example.api.entities.Message;
 import com.example.api.entities.Room;
 import com.example.api.entities.User;
@@ -13,13 +15,16 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.lang.module.ResolutionException;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
 public class MessageService {
     private final MessageRepository messageRepository;
+    private final UserRoomRepository userRoomRepository;
     private final RoomRepository roomRepository;
     private final UserRoomService userRoomService;
 
@@ -56,7 +61,13 @@ public class MessageService {
     }
 
     public MessageDto createMessage(MessageRequest messageRequest) {
+
         User currentUser = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+    
+        // Vérifier si l'utilisateur est bloqué
+        if (isUserBlocked(currentUser.getId(), messageRequest.getRoomId())) {
+            throw new ResolutionException("You are blocked from sending messages in this room");
+        }
         
         // Check if the user is a member of the room
         if (!userRoomService.isUserMemberOfRoom(currentUser.getId(), messageRequest.getRoomId())) {
@@ -78,7 +89,7 @@ public class MessageService {
     }
 
     public MessageDto updateMessage(Integer id, MessageRequest messageRequest) {
-        User currentUser = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+       User currentUser = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         
         Message message = messageRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Message not found with id: " + id));
@@ -91,6 +102,11 @@ public class MessageService {
         // Check if the user is a member of the current room
         if (!userRoomService.isUserMemberOfRoom(currentUser.getId(), message.getRoom().getId())) {
             throw new IllegalStateException("You are not a member of this room");
+        }
+
+         // Vérifier si l'utilisateur est bloqué
+         if (isUserBlocked(currentUser.getId(), message.getRoom().getId())) {
+            throw new ResolutionException("You are blocked from this room");
         }
         
         // If trying to move the message to another room, check membership in that room too
@@ -112,7 +128,7 @@ public class MessageService {
 
     public void deleteMessage(Integer id) {
         User currentUser = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        
+
         Message message = messageRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Message not found with id: " + id));
         
@@ -120,6 +136,12 @@ public class MessageService {
         if (!userRoomService.isUserMemberOfRoom(currentUser.getId(), message.getRoom().getId())) {
             throw new IllegalStateException("You are not a member of this room");
         }
+
+        // Vérifier si l'utilisateur est bloqué
+          if (isUserBlocked(currentUser.getId(), message.getRoom().getId())) {
+            throw new ResolutionException("You are blocked  this room");
+        }
+        
         
         // Check if the current user is the owner of the message
         if (!message.getUser().getId().equals(currentUser.getId())) {
@@ -128,4 +150,10 @@ public class MessageService {
         
         messageRepository.delete(message);
     }
+    
+    private boolean isUserBlocked(Integer userId, Integer roomId) {
+        Optional<UserRoom> userRoom = userRoomRepository.findByUserIdAndRoomId(userId, roomId);
+        return userRoom.map(UserRoom::isBlocked).orElse(true); 
+    }
+    
 }

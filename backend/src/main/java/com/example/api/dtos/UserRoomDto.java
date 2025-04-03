@@ -7,13 +7,15 @@ import java.util.List;
 @Data
 @Accessors(chain = true)
 public class UserRoomDto {
-    private String roomName;  // Nom de la salle
-    private List<UserInfo> users;  // Liste des utilisateurs avec leur rôle
-
+    private String roomName;
+    private List<UserInfo> users;
     @Data
     @Accessors(chain = true)
     public static class UserInfo {
+        private Integer id;
         private String username;
         private String role;
+        private boolean blocked;
+
     }
 }

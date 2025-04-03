@@ -20,8 +20,11 @@ public class UserRoomMapper {
 
         List<UserRoomDto.UserInfo> users = userRooms.stream()
                 .map(ur -> new UserRoomDto.UserInfo()
+                        .setId(ur.getUser().getId())
                         .setUsername(ur.getUser().getUsername())
-                        .setRole(ur.getRoleId().getRole()))
+                        .setRole(ur.getRoleId().getRole())
+                        .setBlocked(ur.isBlocked()))
+
                 .collect(Collectors.toList());
 
         return new UserRoomDto()
