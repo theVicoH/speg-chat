@@ -1,8 +1,14 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Net.Http;
+using System.Net.Http.Headers;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
+using Newtonsoft.Json;
 
 namespace wpf_dotnet
 {
@@ -10,6 +16,9 @@ namespace wpf_dotnet
     {
         private Grid _lastSelectedGroup;
         private Grid _lastSelectedPerson;
+        private readonly HttpClient _client = new HttpClient();
+        private ObservableCollection<Message> _messages = new ObservableCollection<Message>();
+        public CurrentUser _currentUser;
 
         public MainWindow()
         {
@@ -36,7 +45,7 @@ namespace wpf_dotnet
             {
                 button.ContextMenu.PlacementTarget = button;
                 button.ContextMenu.Placement = System.Windows.Controls.Primitives.PlacementMode.Relative;
-                button.ContextMenu.VerticalOffset = -button.ActualHeight - 5; 
+                button.ContextMenu.VerticalOffset = -button.ActualHeight - 5;
                 button.ContextMenu.HorizontalOffset = 0;
                 button.ContextMenu.IsOpen = true;
             }
@@ -44,17 +53,12 @@ namespace wpf_dotnet
 
         private void ProfileMenuItem_Click(object sender, RoutedEventArgs e)
         {
-            // Ouvrir une fenêtre de profil ou autre action
             MessageBox.Show("Ouverture du profil utilisateur", "Profil", MessageBoxButton.OK, MessageBoxImage.Information);
         }
 
         private void LogoutMenuItem_Click(object sender, RoutedEventArgs e)
         {
-            var result = MessageBox.Show("Êtes-vous sûr de vouloir vous déconnecter ?",
-                                      "Confirmation",
-                                      MessageBoxButton.YesNo,
-                                      MessageBoxImage.Question);
-
+            var result = MessageBox.Show("Êtes-vous sûr de vouloir vous déconnecter ?", "Confirmation", MessageBoxButton.YesNo, MessageBoxImage.Question);
             if (result == MessageBoxResult.Yes)
             {
                 Application.Current.Shutdown();
@@ -65,15 +69,12 @@ namespace wpf_dotnet
         {
             var grid = sender as Grid;
             if (grid == null) return;
-
             if (_lastSelectedGroup != null)
             {
                 _lastSelectedGroup.Background = Brushes.Transparent;
             }
-
             grid.Background = new SolidColorBrush(Color.FromArgb(30, 0, 0, 0));
             _lastSelectedGroup = grid;
-
             string groupName = grid.Tag?.ToString() ?? "Unknown group";
             MessageBox.Show($"Group selected: {groupName}");
         }
@@ -82,15 +83,12 @@ namespace wpf_dotnet
         {
             var grid = sender as Grid;
             if (grid == null) return;
-
             if (_lastSelectedPerson != null)
             {
                 _lastSelectedPerson.Background = Brushes.Transparent;
             }
-
             grid.Background = new SolidColorBrush(Color.FromArgb(30, 0, 0, 0));
             _lastSelectedPerson = grid;
-
             string personName = grid.Tag?.ToString() ?? "Unknown person";
             MessageBox.Show($"Person selected: {personName}");
         }
@@ -114,5 +112,21 @@ namespace wpf_dotnet
         {
             MessageBox.Show("Message envoyé");
         }
+    }
+
+    public class Message
+    {
+        public int Id { get; set; }
+        public string Content { get; set; }
+        public int UserId { get; set; }
+        public string Username { get; set; }
+        public DateTime CreatedAt { get; set; }
+        public int RoomId { get; set; }
+    }
+
+    public class CurrentUser
+    {
+        public int Id { get; set; }
+        public string Username { get; set; }
     }
 }
