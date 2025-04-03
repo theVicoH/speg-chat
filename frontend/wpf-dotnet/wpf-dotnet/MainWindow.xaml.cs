@@ -19,6 +19,8 @@ namespace wpf_dotnet
         private readonly HttpClient _client = new HttpClient();
         private ObservableCollection<Message> _messages = new ObservableCollection<Message>();
         public CurrentUser _currentUser;
+        private ObservableCollection<Room> _rooms = new ObservableCollection<Room>();
+        public ObservableCollection<Room> Rooms => _rooms;
 
         public MainWindow()
         {
@@ -68,15 +70,18 @@ namespace wpf_dotnet
         private void GroupItem_PreviewMouseDown(object sender, MouseButtonEventArgs e)
         {
             var grid = sender as Grid;
-            if (grid == null) return;
-            if (_lastSelectedGroup != null)
+            if (grid?.DataContext is Room selectedRoom) 
             {
-                _lastSelectedGroup.Background = Brushes.Transparent;
+                if (_lastSelectedGroup != null)
+                {
+                    _lastSelectedGroup.Background = Brushes.Transparent;
+                }
+                grid.Background = new SolidColorBrush(Color.FromArgb(30, 0, 0, 0));
+                _lastSelectedGroup = grid;
+
+             
+                LoadMessages(selectedRoom.Id); 
             }
-            grid.Background = new SolidColorBrush(Color.FromArgb(30, 0, 0, 0));
-            _lastSelectedGroup = grid;
-            string groupName = grid.Tag?.ToString() ?? "Unknown group";
-            MessageBox.Show($"Group selected: {groupName}");
         }
 
         private void PersonItem_PreviewMouseDown(object sender, MouseButtonEventArgs e)
@@ -112,7 +117,29 @@ namespace wpf_dotnet
         {
             MessageBox.Show("Message envoyé");
         }
+        private async Task LoadRooms()
+        {
+            try
+            {
+                _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", "eyJhbGciOiJIUzM4NCJ9.eyJzdWIiOiJzdHJpbmciLCJpYXQiOjE3NDM2NDc2MDUsImV4cCI6MTc0MzczNDAwNX0.i7-7IbmGehq0f-wTfRZdTwQwQP1VqHe6q8SYtqnqVxS4sWnAPsDjwvd2-AmZXKfW");
+                var response = await _client.GetAsync("http://localhost:8080/rooms");
+                response.EnsureSuccessStatusCode();
+                var json = await response.Content.ReadAsStringAsync();
+                var rooms = JsonConvert.DeserializeObject<List<Room>>(json);
+
+                _rooms.Clear();
+                foreach (var room in rooms)
+                {
+                    _rooms.Add(room);
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Erreur chargement des salons: {ex.Message}");
+            }
+        }
     }
+
 
     public class Message
     {
@@ -128,5 +155,14 @@ namespace wpf_dotnet
     {
         public int Id { get; set; }
         public string Username { get; set; }
+    }
+    public class Room
+    {
+        public int Id { get; set; }
+        public string Name { get; set; }
+        public int TypeId { get; set; }
+        public int CreatorId { get; set; }
+        public DateTime CreatedAt { get; set; }
+        public DateTime UpdatedAt { get; set; }
     }
 }
