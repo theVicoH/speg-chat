@@ -3,6 +3,7 @@ package com.example.api.controllers;
 import com.example.api.dtos.JoinRoomDto;
 import com.example.api.entities.User;
 import com.example.api.entities.UserRoom;
+import com.example.api.dtos.UserRoomDto;
 import com.example.api.services.UserRoomService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -68,5 +69,11 @@ public class UserRoomController {
         userRoomService.leaveRoom(userId, roomId);
         
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/room/{roomId}")
+    public ResponseEntity<UserRoomDto> getUserRoom(@PathVariable Integer roomId) {
+        UserRoomDto userRoom = userRoomService.getUserRoomByRoom(roomId);
+        return ResponseEntity.ok(userRoom);
     }
 }
