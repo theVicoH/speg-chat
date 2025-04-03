@@ -24,7 +24,7 @@ public class RoomService {
     public RoomService(RoomRepository roomRepository, RoomMapper roomMapper, UserRoomService userRoomService) {
         this.roomRepository = roomRepository;
         this.roomMapper = roomMapper;
-        this.userRoomService = userRoomService;  // Initialize it
+        this.userRoomService = userRoomService;
     }
 
     public List<RoomDto> getAllRooms() {
@@ -44,18 +44,29 @@ public class RoomService {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         User creator = (User) authentication.getPrincipal();
         
+        // Check if it's a private room (assuming typeId 2 is for private rooms)
+        boolean isPrivateRoom = roomDto.getTypeId() != null && roomDto.getTypeId() == 2;
+        
+        // For private rooms, limit the number of users to 2 (creator + 1 other user)
+        if (isPrivateRoom && roomDto.getUserIds() != null && roomDto.getUserIds().size() > 1) {
+            throw new ApiException("Private rooms can only have 2 users (you and one other user)", HttpStatus.BAD_REQUEST);
+        }
+        
         Room room = roomMapper.toEntity(roomDto);
         room.setCreator(creator);
         
         Room savedRoom = roomRepository.save(room);
         
-        // Add the creator to the room with administrator role (assuming role ID 1 is administrator)
-        // Create a custom method in UserRoomService to add a user with a specific role
-        userRoomService.joinRoomWithRole(creator.getId(), savedRoom.getId(), 1); // 1 for administrator role
+        // Add the creator to the room with administrator role (role ID 1)
+        userRoomService.joinRoomWithRole(creator.getId(), savedRoom.getId(), 1);
         
         // Add additional users if specified
         if (roomDto.getUserIds() != null && !roomDto.getUserIds().isEmpty()) {
-            for (Integer userId : roomDto.getUserIds()) {
+            // For private rooms, only add the first user from the list
+            int maxUsers = isPrivateRoom ? 1 : roomDto.getUserIds().size();
+            
+            for (int i = 0; i < maxUsers; i++) {
+                Integer userId = roomDto.getUserIds().get(i);
                 // Skip if the user ID is the same as the creator (already added)
                 if (!userId.equals(creator.getId())) {
                     try {
