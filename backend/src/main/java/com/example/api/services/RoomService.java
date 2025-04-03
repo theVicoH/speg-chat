@@ -62,4 +62,16 @@ public class RoomService {
         }
         roomRepository.deleteById(id);
     }
+
+    public void deleteRoom(Integer id, Integer creatorId) {
+        Room room = roomRepository.findById(id)
+                .orElseThrow(() -> new ApiException("Room not found", HttpStatus.NOT_FOUND));
+
+        // Vérifier si l'utilisateur est le créateur de la room
+        if (!room.getCreator().getId().equals(creatorId)) {
+            throw new ApiException("Only the room creator can delete this room", HttpStatus.FORBIDDEN);
+        }
+
+        roomRepository.deleteById(id);
+    }
 }
