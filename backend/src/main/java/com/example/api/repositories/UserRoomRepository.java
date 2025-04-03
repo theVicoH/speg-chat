@@ -10,4 +10,5 @@ import java.util.Optional;
 public interface UserRoomRepository extends JpaRepository<UserRoom, Long> {
     boolean existsByUserIdAndRoomId(Integer userId, Integer roomId);
     Optional<UserRoom> findByUserIdAndRoomId(Integer userId, Integer roomId);
+    long countByRoomId(Integer roomId);
 }

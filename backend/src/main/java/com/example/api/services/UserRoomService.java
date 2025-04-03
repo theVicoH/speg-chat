@@ -3,11 +3,13 @@ package com.example.api.services;
 import com.example.api.entities.Room;
 import com.example.api.entities.User;
 import com.example.api.entities.UserRoom;
+import com.example.api.exceptions.ApiException;
 import com.example.api.repositories.RoomRepository;
 import com.example.api.repositories.UserRepository;
 import com.example.api.repositories.UserRoomRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -29,7 +31,17 @@ public class UserRoomService {
         
         // Vérifier si l'utilisateur est déjà dans le salon
         if (userRoomRepository.existsByUserIdAndRoomId(userId, roomId)) {
-            throw new IllegalStateException("L'utilisateur est déjà membre de ce salon");
+            throw new ApiException("Vous êtes déjà membre de ce salon", HttpStatus.CONFLICT);
+        }
+        
+        // Vérifier si c'est une room privée (type ID 2) et si elle a déjà 2 utilisateurs
+        boolean isPrivateRoom = room.getType().getId() == 2;
+        if (isPrivateRoom) {
+            // Compter le nombre d'utilisateurs dans la room
+            long userCount = userRoomRepository.countByRoomId(roomId);
+            if (userCount >= 2) {
+                throw new ApiException("Ce salon privé a déjà atteint sa limite de 2 utilisateurs", HttpStatus.FORBIDDEN);
+            }
         }
         
         // Par défaut, attribuer le rôle "basic" (ID 3 selon votre initialisation SQL)
@@ -52,7 +64,17 @@ public class UserRoomService {
         
         // Vérifier si l'utilisateur est déjà dans le salon
         if (userRoomRepository.existsByUserIdAndRoomId(userId, roomId)) {
-            throw new IllegalStateException("L'utilisateur est déjà membre de ce salon");
+            throw new ApiException("Vous êtes déjà membre de ce salon", HttpStatus.CONFLICT);
+        }
+        
+        // Vérifier si c'est une room privée (type ID 2) et si elle a déjà 2 utilisateurs
+        boolean isPrivateRoom = room.getType().getId() == 2;
+        if (isPrivateRoom) {
+            // Compter le nombre d'utilisateurs dans la room
+            long userCount = userRoomRepository.countByRoomId(roomId);
+            if (userCount >= 2) {
+                throw new ApiException("Ce salon privé a déjà atteint sa limite de 2 utilisateurs", HttpStatus.FORBIDDEN);
+            }
         }
         
         UserRoom userRoom = UserRoom.builder()
