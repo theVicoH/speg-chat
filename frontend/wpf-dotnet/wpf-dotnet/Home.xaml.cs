@@ -12,11 +12,13 @@ using Newtonsoft.Json;
 using wpf_dotnet.Utils;
 using wpf_dotnet;
 using System.Text;
+using System.ComponentModel;
+
 
 
 namespace wpf_dotnet
 {
-    public partial class Home : Page
+    public partial class Home : Page, INotifyPropertyChanged
     {
         private Grid _lastSelectedGroup;
         private Grid _lastSelectedPerson;
@@ -30,6 +32,19 @@ namespace wpf_dotnet
         public ObservableCollection<Room> PrivateRooms => _privateRooms;
         private ObservableCollection<User> _users = new ObservableCollection<User>();
         public ObservableCollection<User> Users => _users;
+        public event PropertyChangedEventHandler PropertyChanged;
+        private int _currentRoomId;
+        public int CurrentRoomId
+        {
+            get => _currentRoomId;
+            set => _currentRoomId = value;
+        }
+
+
+        protected virtual void OnPropertyChanged(string propertyName)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
 
 
 
@@ -105,7 +120,7 @@ namespace wpf_dotnet
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Erreur chargement des messages privés: {ex.Message}");
+                MessageBox.Show($"Erreur chargement des messages privï¿½s: {ex.Message}");
             }
         }
         private async Task LoadMessages(int roomId = 2)
@@ -144,13 +159,13 @@ namespace wpf_dotnet
                 var response = await _client.PostAsync("http://localhost:8080/rooms", content);
                 response.EnsureSuccessStatusCode();
 
-                // Recharger la liste appropriée
+                // Recharger la liste appropriï¿½e
                 if (typeId == 1) await LoadPublicRooms();
                 else await LoadPrivateRooms();
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Erreur création salon: {ex.Message}");
+                MessageBox.Show($"Erreur crï¿½ation salon: {ex.Message}");
             }
         }
         private async Task LoadUsers()
@@ -210,7 +225,7 @@ namespace wpf_dotnet
 
         private void LogoutMenuItem_Click(object sender, RoutedEventArgs e)
         {
-            var result = MessageBox.Show("Êtes-vous sûr de vouloir vous déconnecter ?", "Confirmation", MessageBoxButton.YesNo, MessageBoxImage.Question);
+            var result = MessageBox.Show("ï¿½tes-vous sï¿½r de vouloir vous dï¿½connecter ?", "Confirmation", MessageBoxButton.YesNo, MessageBoxImage.Question);
             if (result == MessageBoxResult.Yes)
             {
                 Application.Current.Shutdown();
@@ -229,7 +244,8 @@ namespace wpf_dotnet
                 grid.Background = new SolidColorBrush(Color.FromArgb(30, 0, 0, 0));
                 _lastSelectedGroup = grid;
 
-
+                CurrentRoomName = selectedRoom.Name;
+                CurrentRoomId = selectedRoom.Id;
                 await LoadMessages(selectedRoom.Id);
             }
         }
@@ -246,6 +262,8 @@ namespace wpf_dotnet
                 grid.Background = new SolidColorBrush(Color.FromArgb(30, 0, 0, 0));
                 _lastSelectedPerson = grid;
 
+                CurrentRoomName = selectedRoom.Name;
+                CurrentRoomId = selectedRoom.Id;
                 await LoadMessages(selectedRoom.Id);
             }
         }
@@ -264,9 +282,48 @@ namespace wpf_dotnet
             MessageBox.Show("Menu du chat ouvert");
         }
 
-        private void SendMessageButton_Click(object sender, RoutedEventArgs e)
+        private async void SendMessageButton_Click(object sender, RoutedEventArgs e)
         {
-            MessageBox.Show("Message envoyé");
+            var messageContent = MessageInputTextBox.Text.Trim();
+
+            if (string.IsNullOrEmpty(messageContent) || messageContent == "Type your message ...")
+            {
+                MessageBox.Show("Veuillez saisir un message");
+                return;
+            }
+
+            if (CurrentRoomId == 0)
+            {
+                MessageBox.Show("Veuillez sÃ©lectionner une salle d'abord");
+                return;
+            }
+
+            try
+            {
+                var messageData = new
+                {
+                    content = messageContent,
+                    roomId = CurrentRoomId
+                };
+
+                var content = new StringContent(JsonConvert.SerializeObject(messageData), Encoding.UTF8, "application/json");
+                _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", SessionManager.Token);
+
+                // CORRECTION ICI : Utilisation du bon endpoint /messages
+                var response = await _client.PostAsync("http://localhost:8080/messages", content);
+
+                response.EnsureSuccessStatusCode();
+
+                // RÃ©initialiser le champ de message
+                MessageInputTextBox.Text = string.Empty;
+
+                // Recharger les messages
+                await LoadMessages(CurrentRoomId);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Erreur d'envoi du message: {ex.Message}");
+            }
         }
 
         private async void AddPublicRoom_Click(object sender, RoutedEventArgs e)
@@ -279,9 +336,20 @@ namespace wpf_dotnet
             await ShowAddRoomDialog(2);
         }
 
+        private string _currentRoomName;
+        public string CurrentRoomName
+        {
+            get => _currentRoomName;
+            set
+            {
+                _currentRoomName = value;
+                OnPropertyChanged(nameof(CurrentRoomName));
+            }
+        }
+
         private async Task ShowAddRoomDialog(int roomType)
         {
-            await LoadUsers(); // Charger les utilisateurs à chaque ouverture
+            await LoadUsers(); // Charger les utilisateurs ï¿½ chaque ouverture
 
             var dialog = new AddRoomDialog(roomType)
             {
