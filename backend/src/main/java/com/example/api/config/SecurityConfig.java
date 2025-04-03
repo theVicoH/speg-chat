@@ -30,8 +30,9 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-        .cors(cors -> cors.configurationSource(corsConfigurationSource()))
             .csrf(csrf -> csrf.disable())
+            // Active le CORS et fournit le bean de configuration personnalisé
+            .cors(cors -> cors.configurationSource(corsConfigurationSource()))
             .authorizeHttpRequests(authorize -> authorize
                 .requestMatchers(
                     "/auth/**",
@@ -41,7 +42,9 @@ public class SecurityConfig {
                     "/docs",
                     "/api-docs/**",
                     "/hello",
-                    "/info"
+                    "/info",
+                    "/ws/**",
+                    "/topic/**"
                 ).permitAll()
                 .anyRequest().authenticated()
             )
@@ -57,22 +60,37 @@ public class SecurityConfig {
     @Bean
     CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        
-        configuration.setAllowedOrigins(Arrays.asList("http://localhost:3000", "http://localhost:5173"));
-        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+
+        // Définir les motifs d'origine autorisés, sans utiliser "*"
+        configuration.setAllowedOriginPatterns(Arrays.asList(
+            "http://localhost:*",
+            "http://127.0.0.1:*"
+        ));
+
+        // Liste simplifiée des headers autorisés
         configuration.setAllowedHeaders(Arrays.asList(
             "Authorization", 
             "Content-Type",
-            "Access-Control-Allow-Origin",
-            "Access-Control-Allow-Methods",
-            "Access-Control-Allow-Headers"
+            "Accept",
+            "X-Requested-With",
+            "Cache-Control",
+            "Origin",
+            "Sec-WebSocket-Version",
+            "Sec-WebSocket-Key",
+            "Sec-WebSocket-Extensions",
+            "Sec-WebSocket-Protocol"
         ));
+
+        configuration.setAllowedMethods(Arrays.asList(
+            "GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"
+        ));
+
+        configuration.setAllowCredentials(true);
         configuration.setMaxAge(3600L);
-        configuration.setAllowCredentials(false);
-        
+
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
-        
+
         return source;
     }
 }
