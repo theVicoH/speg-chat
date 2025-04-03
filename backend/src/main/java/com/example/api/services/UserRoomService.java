@@ -43,6 +43,28 @@ public class UserRoomService {
     }
     
     @Transactional
+    public UserRoom joinRoomWithRole(Integer userId, Integer roomId, Integer roleId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new EntityNotFoundException("Utilisateur non trouvé avec l'ID: " + userId));
+        
+        Room room = roomRepository.findById(roomId)
+                .orElseThrow(() -> new EntityNotFoundException("Salon non trouvé avec l'ID: " + roomId));
+        
+        // Vérifier si l'utilisateur est déjà dans le salon
+        if (userRoomRepository.existsByUserIdAndRoomId(userId, roomId)) {
+            throw new IllegalStateException("L'utilisateur est déjà membre de ce salon");
+        }
+        
+        UserRoom userRoom = UserRoom.builder()
+                .user(user)
+                .room(room)
+                .roleId(roleId) // Use the provided role ID
+                .build();
+        
+        return userRoomRepository.save(userRoom);
+    }
+    
+    @Transactional
     public void leaveRoom(Integer userId, Integer roomId) {
         // Vérifier si l'utilisateur existe
         User user = userRepository.findById(userId)
