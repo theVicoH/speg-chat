@@ -97,16 +97,27 @@ public class MessageService {
         
         // Get the room ID from the message
         Integer roomId = message.getRoom().getId();
+        Integer messageOwnerId = message.getUser().getId();
         
-        // Check if the current user is the owner of the message or an admin in the room
-        boolean isMessageOwner = message.getUser().getId().equals(currentUser.getId());
+        // Check if the current user is the owner of the message
+        boolean isMessageOwner = messageOwnerId.equals(currentUser.getId());
+        
+        // Check if the current user is an admin or moderator in the room
         boolean isRoomAdmin = isUserRoomAdmin(currentUser.getId(), roomId);
+        boolean isRoomModerator = isUserRoomModerator(currentUser.getId(), roomId);
         
-        if (!isMessageOwner && !isRoomAdmin) {
-            throw new IllegalStateException("You can only delete your own messages or messages in rooms where you are an admin");
+        // Check if the message owner is an admin (moderators can't delete admin messages)
+        boolean isMessageOwnerAdmin = isUserRoomAdmin(messageOwnerId, roomId);
+        
+        // Allow deletion if:
+        // 1. User is the message owner, OR
+        // 2. User is an admin in the room, OR
+        // 3. User is a moderator AND the message owner is not an admin
+        if (isMessageOwner || isRoomAdmin || (isRoomModerator && !isMessageOwnerAdmin)) {
+            messageRepository.delete(message);
+        } else {
+            throw new IllegalStateException("You don't have permission to delete this message");
         }
-        
-        messageRepository.delete(message);
     }
     
     // Helper method to check if a user is an admin in a room
@@ -116,6 +127,17 @@ public class MessageService {
             return userRoomRepository.findByUserIdAndRoomIdAndRoleId(userId, roomId, 1).isPresent();
         } catch (Exception e) {
             // If there's an error, assume the user is not an admin
+            return false;
+        }
+    }
+    
+    // Helper method to check if a user is a moderator in a room
+    private boolean isUserRoomModerator(Integer userId, Integer roomId) {
+        try {
+            // Role ID 2 is for moderators according to your SQL initialization
+            return userRoomRepository.findByUserIdAndRoomIdAndRoleId(userId, roomId, 2).isPresent();
+        } catch (Exception e) {
+            // If there's an error, assume the user is not a moderator
             return false;
         }
     }
