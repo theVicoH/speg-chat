@@ -97,6 +97,14 @@ public class MessageService {
         Message savedMessage = messageRepository.save(message);
         MessageDto messageDto = MessageDto.fromEntity(savedMessage);
         System.out.println("Done Message: " + savedMessage);
+        
+        messagingTemplate.convertAndSend(
+            "/topic/room." + room.getId(),
+            messageDto
+        );
+        
+        return messageDto;
+    }
 
         messagingTemplate.convertAndSend(
             "/topic/room." + room.getId(),
