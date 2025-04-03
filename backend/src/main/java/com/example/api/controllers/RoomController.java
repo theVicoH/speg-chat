@@ -86,6 +86,28 @@ public class RoomController {
         
         return new ResponseEntity<>(userRoom, HttpStatus.OK);
     }
+
+    @Operation(summary = "Quitter un salon", description = "Permet à l'utilisateur authentifié de quitter un salon")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "204", description = "L'utilisateur a quitté le salon avec succès"),
+        @ApiResponse(responseCode = "400", description = "Requête invalide ou l'utilisateur n'est pas membre du salon"),
+        @ApiResponse(responseCode = "404", description = "Salon non trouvé"),
+        @ApiResponse(responseCode = "500", description = "Erreur interne du serveur")
+    })
+    @DeleteMapping("/{roomId}/leave")
+    public ResponseEntity<Void> leaveRoom(
+            @PathVariable Integer roomId,
+            Authentication authentication) {
+        
+        User currentUser = (User) authentication.getPrincipal();
+        Integer userId = currentUser.getId();
+        
+        log.info("Demande de l'utilisateur {} pour quitter le salon {}", userId, roomId);
+        
+        userRoomService.leaveRoom(userId, roomId);
+        
+        return ResponseEntity.noContent().build();
+    }
 }
 
 
