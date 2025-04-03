@@ -1,18 +1,22 @@
 package com.example.api.entities;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
-import lombok.experimental.Accessors;
+import lombok.NoArgsConstructor;
 
-@Data
-@Accessors(chain = true)
 @Entity
 @Table(name = "rooms_types")
+@Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class RoomType {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
-
-    @Column(nullable = false)
+    
+    @Column(name = "type", nullable = false)
     private String type;
 }
