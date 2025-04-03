@@ -28,4 +28,7 @@ public class UserRoom {
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "role_id", nullable = false)  // Relation vers Role
     private Role roleId;
+
+    @Column(name = "blocked", nullable = false)
+    private boolean blocked;
 }

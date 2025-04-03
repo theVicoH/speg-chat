@@ -32,7 +32,7 @@ public class UserRoomService {
     private final RoleRepository roleRepository; // Assurez-vous d'avoir un repository pour les rôles
     private final UserRoomMapper userRoomMapper;
     
-    @Transactional
+        @Transactional
         public UserRoom joinRoom(Integer userId, Integer roomId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new EntityNotFoundException("Utilisateur non trouvé avec l'ID: " + userId));
@@ -108,14 +108,12 @@ public class UserRoomService {
     
     @Transactional
     public void leaveRoom(Integer userId, Integer roomId) {
+
+        checkAdminAccess(roomId);
+
         // Vérifier si l'utilisateur existe
         if (!userRepository.existsById(userId)) {
             throw new EntityNotFoundException("Utilisateur non trouvé avec l'ID: " + userId);
-        }
-        
-        // Vérifier si le salon existe (using existsById instead of findById)
-        if (!roomRepository.existsById(roomId)) {
-            throw new EntityNotFoundException("Salon non trouvé avec l'ID: " + roomId);
         }
         
         // Vérifier si l'utilisateur est membre du salon
@@ -138,16 +136,7 @@ public class UserRoomService {
 
     public UserRoomDto updateUserRoomRole(Integer userId , Integer roomId, Integer roleId) {
 
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        User currentUser = (User) authentication.getPrincipal();
-        Integer currentUserId = currentUser.getId();
-
-        UserRoom currentUserRoom = userRoomRepository.findByUserIdAndRoomId(currentUserId, roomId)
-                .orElseThrow(() -> new EntityNotFoundException("Vous n'êtes pas membre de cette salle"));
-
-        if (!currentUserRoom.getRoleId().getRole().equalsIgnoreCase("administrator")) {
-            throw new AccessDeniedException("Vous n'avez pas les permissions pour modifier les rôles des utilisateurs.");
-        }
+        checkAdminAccess(roomId);
 
         UserRoom userRoom = userRoomRepository.findByUserIdAndRoomId(userId, roomId)
         .orElseThrow(() -> new EntityNotFoundException("L'utilisateur n'est pas membre de ce salon"));
@@ -160,10 +149,58 @@ public class UserRoomService {
     
         return userRoomMapper.toDto(List.of(updatedUserRoom));
     }
-    
- 
+
+    public UserRoomDto blockUser(Integer userId, Integer roomId) {
+        checkAdminAccess(roomId);
+
+        UserRoom userRoom = userRoomRepository.findByUserIdAndRoomId(userId, roomId)
+                .orElseThrow(() -> new EntityNotFoundException("L'utilisateur n'est pas membre de ce salon"));
+
+        userRoom.setBlocked(true);
+        userRoomRepository.save(userRoom);
+
+        return userRoomMapper.toDto(List.of(userRoom));
+    }
+
+    public UserRoomDto unBlockUser(Integer userId, Integer roomId) {
+        checkAdminAccess(roomId);
+
+        UserRoom userRoom = userRoomRepository.findByUserIdAndRoomId(userId, roomId)
+                .orElseThrow(() -> new EntityNotFoundException("L'utilisateur n'est pas membre de ce salon"));
+
+        userRoom.setBlocked(false);
+        userRoomRepository.save(userRoom);
+
+        return userRoomMapper.toDto(List.of(userRoom));
+    }
+
+    public void deleteUserFromRoom(Integer userId, Integer roomId) {
+        checkAdminAccess(roomId);
+
+        UserRoom userRoom = userRoomRepository.findByUserIdAndRoomId(userId, roomId)
+                .orElseThrow(() -> new EntityNotFoundException("L'utilisateur n'est pas membre de ce salon"));
+
+        userRoomRepository.delete(userRoom);
+    }
+
     @Transactional(readOnly = true)
     public boolean isUserMemberOfRoom(Integer userId, Integer roomId) {
         return userRoomRepository.existsByUserIdAndRoomId(userId, roomId);
     }
+    
+    private UserRoom checkAdminAccess(Integer roomId) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        User currentUser = (User) authentication.getPrincipal();
+        Integer currentUserId = currentUser.getId();
+    
+        UserRoom currentUserRoom = userRoomRepository.findByUserIdAndRoomId(currentUserId, roomId)
+                .orElseThrow(() -> new EntityNotFoundException("Vous n'êtes pas membre de cette salle"));
+    
+        if (!currentUserRoom.getRoleId().getRole().equalsIgnoreCase("administrator")) {
+            throw new AccessDeniedException("Vous n'avez pas les permissions nécessaires.");
+        }
+    
+        return currentUserRoom;
+    }
+    
 }

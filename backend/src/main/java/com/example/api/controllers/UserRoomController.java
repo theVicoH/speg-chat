@@ -55,6 +55,7 @@ public class UserRoomController {
         @ApiResponse(responseCode = "404", description = "Salon non trouvé"),
         @ApiResponse(responseCode = "500", description = "Erreur interne du serveur")
     })
+
     @DeleteMapping("/leave")
     public ResponseEntity<Void> leaveRoom(
             @Valid @RequestBody JoinRoomDto leaveRoomDto,
@@ -86,4 +87,32 @@ public class UserRoomController {
         UserRoomDto updatedUserRoom = userRoomService.updateUserRoomRole(userId, roomId, roleId);
         return ResponseEntity.ok(updatedUserRoom);
     }
+
+    @PutMapping("/block/room/{roomId}/user/{userId}")
+    public ResponseEntity<UserRoomDto> blockUserFromRoom(
+            @PathVariable Integer userId,
+            @PathVariable Integer roomId) {
+        
+        UserRoomDto blockedUserRoom = userRoomService.blockUser(userId, roomId);
+        return ResponseEntity.ok(blockedUserRoom);
+    }
+
+    @PutMapping("/unblock/room/{roomId}/user/{userId}")
+    public ResponseEntity<UserRoomDto> unblockUserFromRoom(
+            @PathVariable Integer userId,
+            @PathVariable Integer roomId) {
+        
+        UserRoomDto unblockedUserRoom = userRoomService.unBlockUser(userId, roomId);
+        return ResponseEntity.ok(unblockedUserRoom);
+    }
+
+    @DeleteMapping("/banne/room/{roomId}/user/{userId}")
+    public ResponseEntity<Void> deleteUserRoom(
+            @PathVariable Integer userId,
+            @PathVariable Integer roomId) {
+        
+        userRoomService.deleteUserFromRoom(userId, roomId);
+        return ResponseEntity.noContent().build();
+    }
+
 }

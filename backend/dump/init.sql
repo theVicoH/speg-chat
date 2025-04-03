@@ -30,8 +30,8 @@ CREATE TABLE IF NOT EXISTS `rooms` (
     `updated_at` DATETIME NOT NULL,
     `creator_id` INT NOT NULL,
     `room_type_id` INT NOT NULL,
-    CONSTRAINT `room_creator_id_foreign` FOREIGN KEY (`creator_id`) REFERENCES `users`(`id`),
-    CONSTRAINT `room_room_type_id_foreign` FOREIGN KEY (`room_type_id`) REFERENCES `rooms_types`(`id`)
+    CONSTRAINT `room_creator_id_foreign` FOREIGN KEY (`creator_id`) REFERENCES `users`(`id`) ON DELETE CASCADE,
+    CONSTRAINT `room_room_type_id_foreign` FOREIGN KEY (`room_type_id`) REFERENCES `rooms_types`(`id`) ON DELETE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS `messages` (
@@ -41,8 +41,8 @@ CREATE TABLE IF NOT EXISTS `messages` (
     `created_at` DATETIME NOT NULL,
     `updated_at` DATETIME NOT NULL,
     `room_id` BIGINT NOT NULL,
-    CONSTRAINT `message_user_id_foreign` FOREIGN KEY (`user_id`) REFERENCES `users`(`id`),
-    CONSTRAINT `message_room_id_foreign` FOREIGN KEY (`room_id`) REFERENCES `rooms`(`id`)
+    CONSTRAINT `message_user_id_foreign` FOREIGN KEY (`user_id`) REFERENCES `users`(`id`) ON DELETE CASCADE,
+    CONSTRAINT `message_room_id_foreign` FOREIGN KEY (`room_id`) REFERENCES `rooms`(`id`) ON DELETE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS `users_rooms` (
@@ -50,22 +50,10 @@ CREATE TABLE IF NOT EXISTS `users_rooms` (
     `user_id` INT NOT NULL,
     `room_id` BIGINT NOT NULL,
     `role_id` INT NOT NULL,
-    CONSTRAINT `user_room_user_id_foreign` FOREIGN KEY (`user_id`) REFERENCES `users`(`id`),
-    CONSTRAINT `user_room_room_id_foreign` FOREIGN KEY (`room_id`) REFERENCES `rooms`(`id`),
-    CONSTRAINT `user_room_role_id_foreign` FOREIGN KEY (`role_id`) REFERENCES `roles`(`id`)
-);
-
-CREATE TABLE IF NOT EXISTS `bans` (
-    `id` INT PRIMARY KEY AUTO_INCREMENT NOT NULL,
-    `ban_type_id` INT NOT NULL,
-    `user_id` INT NOT NULL,
-    `room_id` BIGINT NOT NULL,
-    `created_at` DATETIME NOT NULL,
-    `expires_at` DATETIME NOT NULL,
-    `reason` TEXT NOT NULL,
-    CONSTRAINT `ban_user_id_foreign` FOREIGN KEY (`user_id`) REFERENCES `users`(`id`),
-    CONSTRAINT `ban_room_id_foreign` FOREIGN KEY (`room_id`) REFERENCES `rooms`(`id`),
-    CONSTRAINT `ban_ban_type_id_foreign` FOREIGN KEY (`ban_type_id`) REFERENCES `bans_types`(`id`)
+    `blocked` BOOLEAN NOT NULL DEFAULT FALSE,
+    CONSTRAINT `user_room_user_id_foreign` FOREIGN KEY (`user_id`) REFERENCES `users`(`id`) ON DELETE CASCADE,
+    CONSTRAINT `user_room_room_id_foreign` FOREIGN KEY (`room_id`) REFERENCES `rooms`(`id`) ON DELETE CASCADE,
+    CONSTRAINT `user_room_role_id_foreign` FOREIGN KEY (`role_id`) REFERENCES `roles`(`id`) ON DELETE CASCADE
 );
 
 INSERT INTO `roles` (`role`) VALUES ('administrator'), ('moderator'), ('basic');
