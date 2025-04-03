@@ -34,10 +34,17 @@ public class UserService {
 
     public User updateUser(Integer id, User updatedUser) {
         User user = getUserById(id);
-        user.setUsername(updatedUser.getUsername());
-        if (updatedUser.getPassword() != null) {
+        
+        // Only update username if it's provided
+        if (updatedUser.getUsername() != null && !updatedUser.getUsername().isEmpty()) {
+            user.setUsername(updatedUser.getUsername());
+        }
+        
+        // Only update password if it's provided
+        if (updatedUser.getPassword() != null && !updatedUser.getPassword().isEmpty()) {
             user.setPassword(passwordEncoder.encode(updatedUser.getPassword()));
         }
+        
         return userRepository.save(user);
     }
 
