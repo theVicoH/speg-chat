@@ -30,7 +30,6 @@ public class JwtAuthenticationFilterConfig extends OncePerRequestFilter {
 
     private final UserDetailsService userDetailsService;
 
-    @Autowired
     public JwtAuthenticationFilterConfig(
         JwtService jwtService,
         UserDetailsService userDetailsService
