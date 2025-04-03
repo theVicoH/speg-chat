@@ -5,6 +5,7 @@ import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
+import java.util.List;
 
 @Repository
 public interface RoomTypeRepository extends CrudRepository<RoomType, Integer> {
@@ -16,4 +17,7 @@ public interface RoomTypeRepository extends CrudRepository<RoomType, Integer> {
     void deleteById(Integer id);
 
     RoomType save(RoomType roomType);
+
+    @Override
+    List<RoomType> findAll();
 }

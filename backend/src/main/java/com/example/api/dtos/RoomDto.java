@@ -1,92 +1,31 @@
 package com.example.api.dtos;
 
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import lombok.Data;
+import lombok.experimental.Accessors;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import static com.fasterxml.jackson.annotation.JsonProperty.Access.READ_ONLY;
 import java.time.LocalDateTime;
-import java.util.List;
 
+@Data
+@Accessors(chain = true)
 public class RoomDto {
+    @JsonProperty(access = READ_ONLY)
     private Integer id;
+
+    @NotBlank(message = "Room name is required")
     private String name;
-    private Integer creator;
-    private Integer roomType;
+
+    @NotNull(message = "Room type is required")
+    private Integer typeId;
+
+    @JsonProperty(access = READ_ONLY)
+    private Integer creatorId;
+
+    @JsonProperty(access = READ_ONLY)
     private LocalDateTime createdAt;
+
+    @JsonProperty(access = READ_ONLY)
     private LocalDateTime updatedAt;
-    private List<Integer> messageIds;
-    private List<Integer> userIds;
-
-    public RoomDto() {}
-
-    public RoomDto(Integer id, String name, Integer creator, Integer roomType, LocalDateTime createdAt, LocalDateTime updatedAt, List<Integer> messageIds, List<Integer> userIds) {
-        this.id = id;
-        this.name = name;
-        this.creator = creator;
-        this.roomType = roomType;
-        this.createdAt = createdAt;
-        this.updatedAt = updatedAt;
-        this.messageIds = messageIds;
-        this.userIds = userIds;
-    }
-
-    public Integer getId() {
-        return id;
-    }
-
-    public void setId(Integer id) {
-        this.id = id;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public Integer getCreator() {
-        return creator;
-    }
-
-    public void setCreator(Integer creator) {
-        this.creator = creator;
-    }
-
-    public Integer getRoomType() {
-        return roomType;
-    }
-
-    public void setRoomType(Integer roomType) {
-        this.roomType = roomType;
-    }
-
-    public LocalDateTime getCreatedAt() {
-        return createdAt;
-    }
-
-    public void setCreatedAt(LocalDateTime createdAt) {
-        this.createdAt = createdAt;
-    }
-
-    public LocalDateTime getUpdatedAt() {
-        return updatedAt;
-    }
-
-    public void setUpdatedAt(LocalDateTime updatedAt) {
-        this.updatedAt = updatedAt;
-    }
-
-    public List<Integer> getMessageIds() {
-        return messageIds;
-    }
-
-    public void setMessageIds(List<Integer> messageIds) {
-        this.messageIds = messageIds;
-    }
-
-    public List<Integer> getUserIds() {
-        return userIds;
-    }
-
-    public void setUserIds(List<Integer> userIds) {
-        this.userIds = userIds;
-    }   
 }

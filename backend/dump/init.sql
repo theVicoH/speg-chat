@@ -21,7 +21,6 @@ CREATE TABLE IF NOT EXISTS `users` (
     `username` VARCHAR(255) UNIQUE NOT NULL,
     `password` VARCHAR(255) NOT NULL,
     `is_online` BOOLEAN NOT NULL DEFAULT FALSE,
-    CONSTRAINT `user_role_id_foreign` FOREIGN KEY (`role_id`) REFERENCES `roles`(`id`)
 );
 
 CREATE TABLE IF NOT EXISTS `rooms` (
