@@ -3,10 +3,6 @@ package com.example.api.mappers;
 import com.example.api.dtos.RoomTypeDto;
 import com.example.api.entities.RoomType;
 import org.springframework.stereotype.Component;
-import java.util.List;
-import java.util.stream.Collectors;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Component;
 
 @Component
 public class RoomTypeMapper {
@@ -18,9 +14,10 @@ public class RoomTypeMapper {
     }
 
     public RoomType toEntity(RoomTypeDto dto) {
-        return new RoomType()
-                .setId(dto.getId())
-                .setType(dto.getType());
+        RoomType roomType = new RoomType();
+        roomType.setId(dto.getId());
+        roomType.setType(dto.getType());
+        return roomType;
     }
 
     public void updateEntity(RoomType roomType, RoomTypeDto dto) {
