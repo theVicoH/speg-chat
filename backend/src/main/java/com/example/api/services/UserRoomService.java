@@ -67,12 +67,14 @@ public class UserRoomService {
     @Transactional
     public void leaveRoom(Integer userId, Integer roomId) {
         // Vérifier si l'utilisateur existe
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new EntityNotFoundException("Utilisateur non trouvé avec l'ID: " + userId));
+        if (!userRepository.existsById(userId)) {
+            throw new EntityNotFoundException("Utilisateur non trouvé avec l'ID: " + userId);
+        }
         
-        // Vérifier si le salon existe
-        Room room = roomRepository.findById(roomId)
-                .orElseThrow(() -> new EntityNotFoundException("Salon non trouvé avec l'ID: " + roomId));
+        // Vérifier si le salon existe (using existsById instead of findById)
+        if (!roomRepository.existsById(roomId)) {
+            throw new EntityNotFoundException("Salon non trouvé avec l'ID: " + roomId);
+        }
         
         // Vérifier si l'utilisateur est membre du salon
         UserRoom userRoom = userRoomRepository.findByUserIdAndRoomId(userId, roomId)
