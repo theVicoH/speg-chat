@@ -59,6 +59,7 @@
 			<Generator>MSBuild:Compile</Generator>
 			<SubType>Designer</SubType>
 		</Page>
+		<Compile Include="Utils\SessionManager.cs" />
 		<Page Include="Login.xaml">
 			<Generator>MSBuild:Compile</Generator>
 			<SubType>Designer</SubType>

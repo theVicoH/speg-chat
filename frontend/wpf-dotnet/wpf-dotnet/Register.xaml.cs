@@ -1,6 +1,9 @@
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Navigation;
+using System;
+using System.Net.Http;
+using System.Text;
+using wpf_dotnet.Utils;
 
 namespace wpf_dotnet
 {
@@ -11,20 +14,6 @@ namespace wpf_dotnet
             InitializeComponent();
         }
 
-        private void GoToHome(object sender, RoutedEventArgs e)
-        {
-            if (NavigationService != null)
-            {
-                NavigationService.Navigate(new Home());
-            }
-            else
-            {
-                // Trouver MainWindow et naviguer manuellement
-                var mainWindow = Application.Current.MainWindow as MainWindow;
-                mainWindow?.MainFrame.Navigate(new Home());
-            }
-        }
-
         private void GoToLogin(object sender, RoutedEventArgs e)
         {
             if (NavigationService != null)
@@ -33,23 +22,43 @@ namespace wpf_dotnet
             }
             else
             {
-                // Trouver MainWindow et naviguer manuellement
                 var mainWindow = Application.Current.MainWindow as MainWindow;
                 mainWindow?.MainFrame.Navigate(new Login());
             }
         }
 
-        private void HandleRegisterButton(object sender, RoutedEventArgs e)
+        private async void HandleRegisterButton(object sender, RoutedEventArgs e)
         {
             string username = UsernameTextBox.Text;
             string password = PasswordBox.Password;
 
-            MessageBox.Show($"Register that guy\nNom d'utilisateur: {username}\nMot de passe: {password}");
+            string json = $"{{\"username\":\"{username}\",\"password\":\"{password}\"}}";
 
-            UsernameTextBox.Text = "";
-            PasswordBox.Password = "";
+            string url = "http://localhost:8080/auth/signup";
 
-            //GoToHome(sender, e);
+            using (HttpClient client = new HttpClient())
+            {
+                try
+                {
+                    StringContent content = new StringContent(json, Encoding.UTF8, "application/json");
+
+                    HttpResponseMessage response = await client.PostAsync(url, content);
+
+                    if (response.IsSuccessStatusCode)
+                    {
+                        GoToLogin(sender, e);
+                    }
+                    else
+                    {
+                        string responseContent = await response.Content.ReadAsStringAsync();
+                        MessageBox.Show("Erreur lors de la création d'un compte: " + response.StatusCode + "\n" + responseContent);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show(ex.Message);
+                }
+            }
         }
     }
 }
