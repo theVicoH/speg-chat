@@ -7,6 +7,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.messaging.handler.annotation.SendTo;
 
 import java.util.List;
 
@@ -33,13 +34,13 @@ public class MessageController {
 
     @PutMapping("/{id}")
     public ResponseEntity<MessageDto> updateMessage(
-            @PathVariable Integer id, // Changé de Long à Integer
+            @PathVariable Integer id,
             @Valid @RequestBody MessageRequest messageRequest) {
         return ResponseEntity.ok(messageService.updateMessage(id, messageRequest));
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteMessage(@PathVariable Integer id) { // Changé de Long à Integer
+    public ResponseEntity<Void> deleteMessage(@PathVariable Integer id) {
         messageService.deleteMessage(id);
         return ResponseEntity.noContent().build();
     }

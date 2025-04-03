@@ -11,7 +11,9 @@ import com.example.api.exceptions.ResourceNotFoundException;
 import com.example.api.exceptions.ForbiddenActionException;
 import com.example.api.repositories.MessageRepository;
 import com.example.api.repositories.RoomRepository;
+import com.example.api.services.UserRoomService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -27,7 +29,15 @@ public class MessageService {
     private final MessageRepository messageRepository;
     private final UserRoomRepository userRoomRepository;
     private final RoomRepository roomRepository;
+    private final SimpMessagingTemplate messagingTemplate;
     private final UserRoomService userRoomService;
+
+    @Transactional(readOnly = true)
+    public List<MessageDto> getAllMessages() {
+        return messageRepository.findAll().stream()
+                .map(MessageDto::fromEntity)
+                .collect(Collectors.toList());
+    }
 
     public MessageDto getMessageById(Integer id) {
         User currentUser = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
@@ -47,12 +57,11 @@ public class MessageService {
     public List<MessageDto> getMessagesByRoomId(Integer roomId) {
         User currentUser = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         
-        // Check if the user is a member of the room
         if (!userRoomService.isUserMemberOfRoom(currentUser.getId(), roomId)) {
-            throw new IllegalStateException("You are not a member of this room");
+            throw new IllegalStateException("You cannot post messages in a room you are not a member of");
         }
         
-        // Utiliser la méthode qui utilise la relation directe
+
         List<Message> messages = messageRepository.findByRoom_Id(roomId);
         System.out.println("Found " + messages.size() + " messages for room ID: " + roomId);
         
@@ -83,7 +92,14 @@ public class MessageService {
                 .build();
         
         Message savedMessage = messageRepository.save(message);
-        return MessageDto.fromEntity(savedMessage);
+        MessageDto messageDto = MessageDto.fromEntity(savedMessage);
+        
+        messagingTemplate.convertAndSend(
+            "/topic/room." + room.getId(),
+            messageDto
+        );
+        
+        return messageDto;
     }
 
     public MessageDto updateMessage(Integer id, MessageRequest messageRequest) {
