@@ -76,4 +76,14 @@ public class UserRoomController {
         UserRoomDto userRoom = userRoomService.getUserRoomByRoom(roomId);
         return ResponseEntity.ok(userRoom);
     }
+
+    @PutMapping("/update-role/room/{roomId}/user/{userId}/role/{roleId}")
+    public ResponseEntity<UserRoomDto> updateUserRoomRole(
+            @PathVariable Integer userId,
+            @PathVariable Integer roomId,
+            @PathVariable Integer roleId) {
+        
+        UserRoomDto updatedUserRoom = userRoomService.updateUserRoomRole(userId, roomId, roleId);
+        return ResponseEntity.ok(updatedUserRoom);
+    }
 }

@@ -9,7 +9,10 @@ import com.example.api.mappers.UserRoomMapper;
 import com.example.api.repositories.RoomRepository;
 import com.example.api.repositories.UserRepository;
 import com.example.api.repositories.UserRoomRepository;
+import org.springframework.security.access.AccessDeniedException;
 import jakarta.persistence.EntityNotFoundException;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import com.example.api.entities.Role;
@@ -132,8 +135,33 @@ public class UserRoomService {
     
         return userRoomMapper.toDto(userRooms);
     }
+
+    public UserRoomDto updateUserRoomRole(Integer userId , Integer roomId, Integer roleId) {
+
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        User currentUser = (User) authentication.getPrincipal();
+        Integer currentUserId = currentUser.getId();
+
+        UserRoom currentUserRoom = userRoomRepository.findByUserIdAndRoomId(currentUserId, roomId)
+                .orElseThrow(() -> new EntityNotFoundException("Vous n'êtes pas membre de cette salle"));
+
+        if (!currentUserRoom.getRoleId().getRole().equalsIgnoreCase("administrator")) {
+            throw new AccessDeniedException("Vous n'avez pas les permissions pour modifier les rôles des utilisateurs.");
+        }
+
+        UserRoom userRoom = userRoomRepository.findByUserIdAndRoomId(userId, roomId)
+        .orElseThrow(() -> new EntityNotFoundException("L'utilisateur n'est pas membre de ce salon"));
     
+        Role role = roleRepository.findById(roleId)
+                .orElseThrow(() -> new EntityNotFoundException("Rôle non trouvé avec l'ID: " + roleId));
     
+        userRoom.setRoleId(role);
+        UserRoom updatedUserRoom = userRoomRepository.save(userRoom);
+    
+        return userRoomMapper.toDto(List.of(updatedUserRoom));
+    }
+    
+ 
     @Transactional(readOnly = true)
     public boolean isUserMemberOfRoom(Integer userId, Integer roomId) {
         return userRoomRepository.existsByUserIdAndRoomId(userId, roomId);
