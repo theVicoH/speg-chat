@@ -133,4 +133,9 @@ public class UserRoomService {
         return userRoomMapper.toDto(userRooms);
     }
     
+    
+    @Transactional(readOnly = true)
+    public boolean isUserMemberOfRoom(Integer userId, Integer roomId) {
+        return userRoomRepository.existsByUserIdAndRoomId(userId, roomId);
+    }
 }

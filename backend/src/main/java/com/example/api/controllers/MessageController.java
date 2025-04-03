@@ -16,18 +16,13 @@ import java.util.List;
 public class MessageController {
     private final MessageService messageService;
 
-    @GetMapping
-    public ResponseEntity<List<MessageDto>> getAllMessages() {
-        return ResponseEntity.ok(messageService.getAllMessages());
-    }
-
     @GetMapping("/{id}")
-    public ResponseEntity<MessageDto> getMessageById(@PathVariable Integer id) { // Changé de Long à Integer
+    public ResponseEntity<MessageDto> getMessageById(@PathVariable Integer id) {
         return ResponseEntity.ok(messageService.getMessageById(id));
     }
 
     @GetMapping("/room/{roomId}")
-    public ResponseEntity<List<MessageDto>> getMessagesByRoomId(@PathVariable Integer roomId) { // Changé de Long à Integer
+    public ResponseEntity<List<MessageDto>> getMessagesByRoomId(@PathVariable Integer roomId) {
         return ResponseEntity.ok(messageService.getMessagesByRoomId(roomId));
     }
 
