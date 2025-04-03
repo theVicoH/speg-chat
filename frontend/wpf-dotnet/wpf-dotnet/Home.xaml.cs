@@ -109,12 +109,26 @@ namespace wpf_dotnet
             MessageBox.Show("Ouverture du profil utilisateur", "Profil", MessageBoxButton.OK, MessageBoxImage.Information);
         }
 
+        private void GoToLogin(object sender, RoutedEventArgs e)
+        {
+            if (NavigationService != null)
+            {
+                NavigationService.Navigate(new Login());
+            }
+            else
+            {
+                var mainWindow = Application.Current.MainWindow as MainWindow;
+                mainWindow?.MainFrame.Navigate(new Login());
+            }
+        }
+
         private void LogoutMenuItem_Click(object sender, RoutedEventArgs e)
         {
-            var result = MessageBox.Show("Êtes-vous sûr de vouloir vous déconnecter ?", "Confirmation", MessageBoxButton.YesNo, MessageBoxImage.Question);
+            var result = MessageBox.Show("Etes-vous sÃ»r de vouloir vous dÃ©connecter ?", "Confirmation", MessageBoxButton.YesNo, MessageBoxImage.Question);
             if (result == MessageBoxResult.Yes)
             {
-                Application.Current.Shutdown();
+                SessionManager.SetToken("");
+                GoToLogin(sender, e);
             }
         }
 
@@ -166,7 +180,7 @@ namespace wpf_dotnet
 
         private void SendMessageButton_Click(object sender, RoutedEventArgs e)
         {
-            MessageBox.Show("Message envoyé");
+            MessageBox.Show("Message envoyï¿½");
         }
         private async Task LoadRooms()
         {
