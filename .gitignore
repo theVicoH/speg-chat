@@ -4,3 +4,6 @@
 .DS_Store
 
 backend/mvnw
+
+frontend/wpf-dotnet/wpf-dotnet/bin
+frontend/wpf-dotnet/wpf-dotnet/obj

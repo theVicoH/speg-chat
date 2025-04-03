@@ -192,43 +192,43 @@
 							<StackPanel>
 								<StackPanel x:Name="GroupsSection">
 									<TextBlock Text="Salons Publiques" FontWeight="Bold" Margin="20 10" FontSize="16"/>
-									<Grid Margin="20 10" Style="{StaticResource ListItemStyle}" PreviewMouseDown="GroupItem_PreviewMouseDown" Tag="Pars Habib">
-										<Grid.ColumnDefinitions>
-											<ColumnDefinition Width="Auto"/>
-											<ColumnDefinition Width="*"/>
-											<ColumnDefinition Width="Auto"/>
-										</Grid.ColumnDefinitions>
-										<Border Grid.Column="0" Margin="10 0 0 0" Width="30" Height="30" Background="#E1E4F9">
-											<TextBlock Text="PH" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="#4A72F5"/>
-										</Border>
-										<Border Grid.Column="1" Padding="5 5" >
-											<StackPanel Grid.Column="1" Margin="10 0 0 0">
-												<TextBlock Text="Pars Habib" FontWeight="Medium"/>
-												<TextBlock Text="Okay, Cool!" Foreground="#999999" FontSize="12"/>
-											</StackPanel>
-										</Border>
-										
-										<Border Grid.Column="2" Width="22" Margin="0 0 10 0" Height="22" Background="#4A90E2">
-											<TextBlock Text="2" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="11"/>
-										</Border>
-									</Grid>
-									<Grid Margin="20 10"   Style="{StaticResource ListItemStyle}" PreviewMouseDown="GroupItem_PreviewMouseDown" Tag="Moonlab Std">
-										<Grid.ColumnDefinitions>
-											<ColumnDefinition Width="Auto"/>
-											<ColumnDefinition Width="*"/>
-											<ColumnDefinition Width="Auto"/>
-										</Grid.ColumnDefinitions>
-										<Border Grid.Column="0" Width="30" Margin="10 0 0 0" Height="30" Background="#E1F3F9">
-											<TextBlock Text="MS" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="#4AD5F5"/>
-										</Border>
-										<Border Grid.Column="1" Padding="5 5" >
-											<StackPanel Grid.Column="1" Margin="10 0 0 0" >
-												<TextBlock Text="Moonlab Std" FontWeight="Medium" />
-												<TextBlock Text="Suvun boa!" Foreground="#999999" FontSize="12" />
-											</StackPanel>
-										</Border>
-									</Grid>
-									<Button Content="Show All" Foreground="#6650D8" Margin="20 10" HorizontalAlignment="Center" Background="Transparent" BorderThickness="0" Click="ShowAllGroups_Click"/>
+									<ItemsControl ItemsSource="{Binding Rooms}">
+										<ItemsControl.ItemTemplate>
+											<DataTemplate>
+												<Grid Margin="20 10" Style="{StaticResource ListItemStyle}"
+													  PreviewMouseDown="GroupItem_PreviewMouseDown" Tag="{Binding Name}">
+													<Grid.ColumnDefinitions>
+														<ColumnDefinition Width="Auto"/>
+														<ColumnDefinition Width="*"/>
+														<ColumnDefinition Width="Auto"/>
+													</Grid.ColumnDefinitions>
+
+													<Border Grid.Column="0" Margin="10 0 0 0" Width="30" Height="30"
+															Background="{StaticResource AvatarBlue}">
+														<TextBlock Text="{Binding Name, Converter={StaticResource InitialsConverter}}"
+																   HorizontalAlignment="Center" VerticalAlignment="Center"
+																   Foreground="{StaticResource AvatarBlueText}"/>
+													</Border>
+
+													<Border Grid.Column="1" Padding="5 5">
+														<StackPanel Margin="10 0 0 0">
+															<TextBlock Text="{Binding Name}" FontWeight="Medium"/>
+															<TextBlock Text="Nouveau salon" Foreground="#999999" FontSize="12"/>
+														</StackPanel>
+													</Border>
+
+													<Border Grid.Column="2" Width="22" Margin="0 0 10 0" Height="22"
+															Background="#4A90E2">
+														<TextBlock Text="0" Foreground="White"
+																   HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="11"/>
+													</Border>
+												</Grid>
+											</DataTemplate>
+										</ItemsControl.ItemTemplate>
+									</ItemsControl>
+									<Button Content="Show All" Foreground="#6650D8" Margin="20 10"
+											HorizontalAlignment="Center" Background="Transparent" BorderThickness="0"
+											Click="ShowAllGroups_Click"/>
 								</StackPanel>
 
 								<StackPanel x:Name="PersonsSection" Visibility="Collapsed">
