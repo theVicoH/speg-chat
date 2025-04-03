@@ -1,6 +1,7 @@
 package com.example.api.mappers;
 
 import com.example.api.dtos.RoomDto;
+import com.example.api.dtos.RoomUpdateDto;
 import com.example.api.entities.Room;
 import com.example.api.entities.RoomType;
 import com.example.api.repositories.RoomTypeRepository;
@@ -35,7 +36,7 @@ public class RoomMapper {
                 .setType(type);
     }
 
-    public void updateEntity(Room room, RoomDto dto) {
+    public void updateEntityFromUpdateDto(Room room, RoomUpdateDto dto) {
         // Only update the name, type cannot be changed
         room.setName(dto.getName());
     }

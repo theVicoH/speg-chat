@@ -1,6 +1,7 @@
 package com.example.api.services;
 
 import com.example.api.dtos.RoomDto;
+import com.example.api.dtos.RoomUpdateDto;
 import com.example.api.entities.Room;
 import com.example.api.entities.User;
 import com.example.api.exceptions.ApiException;
@@ -82,7 +83,7 @@ public class RoomService {
         return roomMapper.toDto(savedRoom);
     }
 
-    public RoomDto updateRoom(Integer id, RoomDto roomDto, Integer currentUserId) {
+    public RoomDto updateRoom(Integer id, RoomUpdateDto roomUpdateDto, Integer currentUserId) {
         Room room = roomRepository.findById(id)
                 .orElseThrow(() -> new ApiException("Room not found", HttpStatus.NOT_FOUND));
         
@@ -91,8 +92,27 @@ public class RoomService {
             throw new ApiException("Only the room creator can update this room", HttpStatus.FORBIDDEN);
         }
         
-        roomMapper.updateEntity(room, roomDto);
+        roomMapper.updateEntityFromUpdateDto(room, roomUpdateDto);
         Room updatedRoom = roomRepository.save(room);
+        
+        // Add additional users if specified
+        if (roomUpdateDto.getUserIds() != null && !roomUpdateDto.getUserIds().isEmpty()) {
+            for (Integer userId : roomUpdateDto.getUserIds()) {
+                // Skip if the user ID is the same as the creator (already added)
+                if (!userId.equals(currentUserId)) {
+                    try {
+                        // Check if user is already in the room
+                        if (!userRoomService.isUserMemberOfRoom(userId, room.getId())) {
+                            userRoomService.joinRoom(userId, room.getId());
+                        }
+                    } catch (Exception e) {
+                        // Log the error but continue with other users
+                        System.err.println("Failed to add user " + userId + " to room: " + e.getMessage());
+                    }
+                }
+            }
+        }
+        
         return roomMapper.toDto(updatedRoom);
     }
 
