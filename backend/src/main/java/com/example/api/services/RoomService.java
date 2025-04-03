@@ -49,8 +49,9 @@ public class RoomService {
         
         Room savedRoom = roomRepository.save(room);
         
-        // Add the creator to the room automatically
-        userRoomService.joinRoom(creator.getId(), savedRoom.getId());
+        // Add the creator to the room with administrator role (assuming role ID 1 is administrator)
+        // Create a custom method in UserRoomService to add a user with a specific role
+        userRoomService.joinRoomWithRole(creator.getId(), savedRoom.getId(), 1); // 1 for administrator role
         
         // Add additional users if specified
         if (roomDto.getUserIds() != null && !roomDto.getUserIds().isEmpty()) {
