@@ -10,6 +10,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional; // Add this import
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -18,10 +19,12 @@ import java.util.stream.Collectors;
 public class RoomService {
     private final RoomRepository roomRepository;
     private final RoomMapper roomMapper;
+    private final UserRoomService userRoomService;  // Add this dependency
 
-    public RoomService(RoomRepository roomRepository, RoomMapper roomMapper) {
+    public RoomService(RoomRepository roomRepository, RoomMapper roomMapper, UserRoomService userRoomService) {
         this.roomRepository = roomRepository;
         this.roomMapper = roomMapper;
+        this.userRoomService = userRoomService;  // Initialize it
     }
 
     public List<RoomDto> getAllRooms() {
@@ -36,6 +39,7 @@ public class RoomService {
         return roomMapper.toDto(room);
     }
 
+    @Transactional  // Make this method transactional
     public RoomDto createRoom(RoomDto roomDto) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         User creator = (User) authentication.getPrincipal();
@@ -44,6 +48,25 @@ public class RoomService {
         room.setCreator(creator);
         
         Room savedRoom = roomRepository.save(room);
+        
+        // Add the creator to the room automatically
+        userRoomService.joinRoom(creator.getId(), savedRoom.getId());
+        
+        // Add additional users if specified
+        if (roomDto.getUserIds() != null && !roomDto.getUserIds().isEmpty()) {
+            for (Integer userId : roomDto.getUserIds()) {
+                // Skip if the user ID is the same as the creator (already added)
+                if (!userId.equals(creator.getId())) {
+                    try {
+                        userRoomService.joinRoom(userId, savedRoom.getId());
+                    } catch (Exception e) {
+                        // Log the error but continue with other users
+                        System.err.println("Failed to add user " + userId + " to room: " + e.getMessage());
+                    }
+                }
+            }
+        }
+        
         return roomMapper.toDto(savedRoom);
     }
 
