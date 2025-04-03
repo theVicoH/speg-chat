@@ -10,9 +10,9 @@ namespace wpf_dotnet
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            if (value is int userId && System.Windows.Application.Current.MainWindow is MainWindow mainWindow)
+            if (value is int userId && Home.Instance != null)
             {
-                return userId == mainWindow._currentUser?.Id
+                return userId == Home.Instance.CurrentUser?.Id
                     ? HorizontalAlignment.Right
                     : HorizontalAlignment.Left;
             }
@@ -29,9 +29,9 @@ namespace wpf_dotnet
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            if (value is int userId && System.Windows.Application.Current.MainWindow is MainWindow mainWindow)
+            if (value is int userId && Home.Instance != null)
             {
-                return userId != mainWindow._currentUser?.Id
+                return userId != Home.Instance.CurrentUser?.Id
                     ? Visibility.Visible
                     : Visibility.Collapsed;
             }
@@ -48,9 +48,9 @@ namespace wpf_dotnet
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            if (value is int userId && System.Windows.Application.Current.MainWindow is MainWindow mainWindow)
+            if (value is int userId && Home.Instance != null)
             {
-                return userId == mainWindow._currentUser?.Id
+                return userId == Home.Instance.CurrentUser?.Id
                     ? Visibility.Visible
                     : Visibility.Collapsed;
             }
