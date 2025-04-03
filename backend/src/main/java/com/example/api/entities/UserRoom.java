@@ -25,6 +25,7 @@ public class UserRoom {
     @JoinColumn(name = "room_id", nullable = false)
     private Room room;
     
-    @Column(name = "role_id", nullable = false)
-    private Integer roleId;
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "role_id", nullable = false)  // Relation vers Role
+    private Role roleId;
 }
