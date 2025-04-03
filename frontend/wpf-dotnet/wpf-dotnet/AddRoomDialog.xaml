@@ -1,0 +1,72 @@
+<Window x:Class="wpf_dotnet.AddRoomDialog"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Créer un nouveau salon"
+        Height="400"
+        Width="600"
+        WindowStartupLocation="CenterOwner">
+	<Grid Margin="15">
+		<Grid.RowDefinitions>
+			<RowDefinition Height="Auto"/>
+			<!-- Ligne 0 : Titre/Nom -->
+			<RowDefinition Height="Auto"/>
+			<!-- Ligne 1 : TextBox -->
+			<RowDefinition Height="Auto"/>
+			<!-- Ligne 2 : En-têtes -->
+			<RowDefinition Height="*"/>
+			<!-- Ligne 3 : Listes -->
+			<RowDefinition Height="Auto"/>
+			<!-- Ligne 4 : Boutons -->
+		</Grid.RowDefinitions>
+		<Grid.ColumnDefinitions>
+			<ColumnDefinition Width="*"/>
+			<ColumnDefinition Width="Auto"/>
+			<ColumnDefinition Width="*"/>
+		</Grid.ColumnDefinitions>
+
+		<!-- Nom du salon -->
+		<TextBlock Text="Nom du salon:" Grid.Row="0" Grid.ColumnSpan="3"/>
+		<TextBox x:Name="RoomNameTextBox" Grid.Row="1" Grid.ColumnSpan="3" Margin="0 5"/>
+
+		<!-- En-têtes -->
+		<TextBlock Text="Utilisateurs disponibles:"
+                   Grid.Row="2" Grid.Column="0"
+                   Margin="0 10 0 5"/>
+		<TextBlock Text="Membres sélectionnés:"
+                   Grid.Row="2" Grid.Column="2"
+                   Margin="0 10 0 5"/>
+
+		<!-- Listes avec hauteur fixe -->
+		<ListBox x:Name="UsersListBox"
+                 Grid.Row="3" Grid.Column="0"
+                 ItemsSource="{Binding}"
+                 DisplayMemberPath="Username"
+                 Margin="0 0 0 0"
+                 Height="200"/>
+
+		<StackPanel Grid.Row="3" Grid.Column="1"
+                    VerticalAlignment="Center"
+                    Margin="10 0">
+			<Button Content="Ajouter →" Width="100" Margin="0 5" Click="AddButton_Click"/>
+			<Button Content="← Retirer" Width="100" Margin="0 5" Click="RemoveButton_Click"/>
+		</StackPanel>
+
+		<ListBox x:Name="SelectedUsersListBox"
+                 Grid.Row="3" Grid.Column="2"
+                 ItemsSource="{Binding SelectedUsers, RelativeSource={RelativeSource AncestorType=Window}}"
+                 DisplayMemberPath="Username"
+                 Height="200"/>
+		
+		<!-- Message PS -->
+
+
+		<!-- Boutons en bas -->
+		<StackPanel Grid.Row="4" Grid.ColumnSpan="3"
+                    Orientation="Horizontal"
+                    HorizontalAlignment="Right"
+                    Margin="0 15 0 0">
+			<Button Content="Annuler" Width="80" Margin="0 0 10 0" Click="CancelButton_Click"/>
+			<Button Content="Créer" Width="80" Click="CreateButton_Click"/>
+		</StackPanel>
+	</Grid>
+</Window>
