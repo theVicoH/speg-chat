@@ -7,40 +7,54 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import org.hibernate.Hibernate;
 
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
 public class MessageDto {
-    private Long id;
+    private Integer id;
     private String content;
-    private Long userId;
+    private Integer userId;
     private String username;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
-    private Long roomId;
+    private Integer roomId;
     
     public static MessageDto fromEntity(Message message) {
-        MessageDto dto = MessageDto.builder()
-                .id(message.getId())
-                .content(message.getContent())
-                .createdAt(message.getCreatedAt())
-                .updatedAt(message.getUpdatedAt())
-                .roomId(message.getRoomId())
-                .build();
-        
-        // Handle lazy loading of user
-        if (message.getUser() != null) {
-            try {
-                dto.setUserId(message.getUser().getId().longValue());
-                dto.setUsername(message.getUser().getUsername());
-            } catch (Exception e) {
-                // Log the error but don't fail the conversion
-                System.err.println("Error accessing user properties: " + e.getMessage());
+        try {
+            Integer userId = null;
+            String username = null;
+            Integer roomId = null;
+            
+            // Vérifiez si les proxies sont initialisés avant d'y accéder
+            if (message.getUser() != null && Hibernate.isInitialized(message.getUser())) {
+                userId = message.getUser().getId();
+                username = message.getUser().getUsername();
             }
+            
+            if (message.getRoom() != null && Hibernate.isInitialized(message.getRoom())) {
+                roomId = message.getRoom().getId();
+            }
+            
+            return MessageDto.builder()
+                    .id(message.getId())
+                    .content(message.getContent())
+                    .userId(userId)
+                    .username(username)
+                    .createdAt(message.getCreatedAt())
+                    .updatedAt(message.getUpdatedAt())
+                    .roomId(roomId)
+                    .build();
+        } catch (Exception e) {
+            System.err.println("Error accessing properties: " + e.getMessage());
+            return MessageDto.builder()
+                    .id(message.getId())
+                    .content(message.getContent())
+                    .createdAt(message.getCreatedAt())
+                    .updatedAt(message.getUpdatedAt())
+                    .build();
         }
-        
-        return dto;
     }
 }

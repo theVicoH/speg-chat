@@ -3,5 +3,8 @@
 .env-local
 .DS_Store
 
+backend/mvnw
+
+
 **/bin/
 **/obj/

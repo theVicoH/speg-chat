@@ -7,7 +7,7 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 @Repository
-public interface MessageRepository extends JpaRepository<Message, Long> {
-    List<Message> findByUserId(Integer userId);
-    List<Message> findByRoomId(Long roomId);
+public interface MessageRepository extends JpaRepository<Message, Integer> {
+    // Utiliser la syntaxe correcte pour accéder à l'ID via la relation
+    List<Message> findByRoom_Id(Integer roomId);
 }

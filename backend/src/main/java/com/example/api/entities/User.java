@@ -1,31 +1,30 @@
 package com.example.api.entities;
 
 import jakarta.persistence.*;
-import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.UpdateTimestamp;
+import jakarta.validation.constraints.Size;
+import lombok.Data;
+import lombok.experimental.Accessors;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
-
 import java.util.Collection;
-import java.util.Date;
 import java.util.List;
 
-@Table(name = "users")
+@Data
+@Accessors(chain = true)
 @Entity
+@Table(name = "users")
 public class User implements UserDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(nullable = false)
     private Integer id;
 
-    @Column(nullable = false)
+    @Column(nullable = false, unique=true)
+    @Size(min = 3, max = 50, message = "Username must be between 3 and 50 characters")
     private String username;
 
     @Column(nullable = false)
     private String password;
-
-    @Column(name = "role_id", nullable = false)
-    private Integer roleId = 3;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
@@ -57,15 +56,6 @@ public class User implements UserDetails {
 
     public User setUsername(String username) {
         this.username = username;
-        return this;
-    }
-
-    public Integer getRoleId() {
-        return roleId;
-    }
-
-    public User setRoleId(Integer roleId) {
-        this.roleId = roleId;
         return this;
     }
 }
