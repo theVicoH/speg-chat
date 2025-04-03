@@ -61,4 +61,19 @@ public class UserController {
         userService.deleteUser(id);
         return ResponseEntity.noContent().build();
     }
+
+    // Add this new endpoint
+    @PutMapping("/me")
+    public ResponseEntity<UserDto> updateCurrentUser(@Valid @RequestBody UserDto userDto) {
+        // Get the current authenticated user from the security context
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        User currentUser = (User) authentication.getPrincipal();
+        Integer userId = currentUser.getId();
+        
+        // Use the existing update logic with the current user's ID
+        User user = userMapper.toEntity(userDto);
+        user.setId(userId);
+        User updatedUser = userService.updateUser(userId, user);
+        return ResponseEntity.ok(userMapper.toDto(updatedUser));
+    }
 }

@@ -13,8 +13,16 @@ public class UserMapper {
     }
 
     public User toEntity(UserDto dto) {
-        return new User()
-                .setUsername(dto.getUsername())
-                .setPassword(dto.getPassword());
+        User user = new User();
+        
+        if (dto.getUsername() != null) {
+            user.setUsername(dto.getUsername());
+        }
+        
+        if (dto.getPassword() != null) {
+            user.setPassword(dto.getPassword());
+        }
+        
+        return user;
     }
 }
