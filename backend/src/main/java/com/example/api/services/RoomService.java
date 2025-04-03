@@ -69,8 +69,15 @@ public class RoomService {
         
         boolean isPrivateRoom = roomDto.getTypeId() != null && roomDto.getTypeId() == 2;
         
-        if (isPrivateRoom && roomDto.getUserIds() != null && roomDto.getUserIds().size() > 1) {
-            throw new ApiException("Private rooms can only have 2 users (you and one other user)", HttpStatus.BAD_REQUEST);
+        // For private rooms, ensure there's exactly one other user
+        if (isPrivateRoom) {
+            if (roomDto.getUserIds() == null || roomDto.getUserIds().isEmpty()) {
+                throw new ApiException("Private rooms must have exactly one other user", HttpStatus.BAD_REQUEST);
+            }
+            
+            if (roomDto.getUserIds().size() > 1) {
+                throw new ApiException("Private rooms can only have 2 users (you and one other user)", HttpStatus.BAD_REQUEST);
+            }
         }
         
         Room room = roomMapper.toEntity(roomDto);
