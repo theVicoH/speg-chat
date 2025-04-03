@@ -11,6 +11,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import com.example.api.entities.UserRoom;
+import com.example.api.repositories.UserRoomRepository;  // Add this import
 import org.springframework.transaction.annotation.Transactional; // Add this import
 
 import java.util.List;
@@ -19,10 +21,12 @@ import java.util.stream.Collectors;
 @Service
 public class RoomService {
     private final RoomRepository roomRepository;
+    private final UserRoomRepository userRoomRepository;  // Add this dependency
     private final RoomMapper roomMapper;
-    private final UserRoomService userRoomService;  // Add this dependency
+    private final UserRoomService userRoomService;
 
-    public RoomService(RoomRepository roomRepository, RoomMapper roomMapper, UserRoomService userRoomService) {
+    public RoomService(RoomRepository roomRepository, RoomMapper roomMapper, UserRoomService userRoomService , UserRoomRepository userRoomRepository) {
+        this.userRoomRepository = userRoomRepository;
         this.roomRepository = roomRepository;
         this.roomMapper = roomMapper;
         this.userRoomService = userRoomService;
@@ -34,21 +38,37 @@ public class RoomService {
                 .collect(Collectors.toList());
     }
 
+    public List<RoomDto> getRoomsByTypeId(Integer typeId) {
+
+    Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+    User currentUser = (User) authentication.getPrincipal();
+    Integer currentUserId = currentUser.getId();
+
+    // Récupérer toutes les salles où l'utilisateur est membre
+    List<UserRoom> userRooms = userRoomRepository.findAllByUserId(currentUserId);
+
+    // Filtrer les salles par type
+    return userRooms.stream()
+            .map(UserRoom::getRoom)
+            .filter(room -> room.getType().getId().equals(typeId))  // Filtrer par type
+            .map(roomMapper::toDto)
+            .collect(Collectors.toList());
+    }
+
+
     public RoomDto getRoomById(Integer id) {
         Room room = roomRepository.findById(id)
                 .orElseThrow(() -> new ApiException("Room not found", HttpStatus.NOT_FOUND));
         return roomMapper.toDto(room);
     }
 
-    @Transactional  // Make this method transactional
+    @Transactional
     public RoomDto createRoom(RoomDto roomDto) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         User creator = (User) authentication.getPrincipal();
         
-        // Check if it's a private room (assuming typeId 2 is for private rooms)
         boolean isPrivateRoom = roomDto.getTypeId() != null && roomDto.getTypeId() == 2;
         
-        // For private rooms, limit the number of users to 2 (creator + 1 other user)
         if (isPrivateRoom && roomDto.getUserIds() != null && roomDto.getUserIds().size() > 1) {
             throw new ApiException("Private rooms can only have 2 users (you and one other user)", HttpStatus.BAD_REQUEST);
         }
@@ -114,13 +134,6 @@ public class RoomService {
         }
         
         return roomMapper.toDto(updatedRoom);
-    }
-
-    public void deleteRoom(Integer id) {
-        if (!roomRepository.existsById(id)) {
-            throw new ApiException("Room not found", HttpStatus.NOT_FOUND);
-        }
-        roomRepository.deleteById(id);
     }
 
     public void deleteRoom(Integer id, Integer creatorId) {
