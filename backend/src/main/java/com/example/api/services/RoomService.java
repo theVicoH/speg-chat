@@ -64,12 +64,33 @@ public class RoomService {
 
     @Transactional
     public RoomDto createRoom(RoomDto roomDto) {
+        // Get the current authenticated user
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         User creator = (User) authentication.getPrincipal();
         
+        // Validate room type and user constraints
+        validateRoomCreation(roomDto, creator);
+        
+        // Create and save the room
+        Room room = roomMapper.toEntity(roomDto);
+        room.setCreator(creator);
+        Room savedRoom = roomRepository.save(room);
+        
+        // Add the creator as admin
+        userRoomService.joinRoomWithRole(creator.getId(), savedRoom.getId(), 1);
+        
+        // Add other users to the room
+        addUsersToRoom(roomDto, creator, savedRoom);
+        
+        return roomMapper.toDto(savedRoom);
+    }
+    
+    /**
+     * Validates the room creation parameters
+     */
+    private void validateRoomCreation(RoomDto roomDto, User creator) {
         boolean isPrivateRoom = roomDto.getTypeId() != null && roomDto.getTypeId() == 2;
         
-        // For private rooms, ensure there's exactly one other user
         if (isPrivateRoom) {
             if (roomDto.getUserIds() == null || roomDto.getUserIds().isEmpty()) {
                 throw new ApiException("Private rooms must have exactly one other user", HttpStatus.BAD_REQUEST);
@@ -79,35 +100,31 @@ public class RoomService {
                 throw new ApiException("Private rooms can only have 2 users (you and one other user)", HttpStatus.BAD_REQUEST);
             }
         }
+    }
+    
+    /**
+     * Adds users to the room based on the provided user IDs
+     */
+    private void addUsersToRoom(RoomDto roomDto, User creator, Room savedRoom) {
+        if (roomDto.getUserIds() == null || roomDto.getUserIds().isEmpty()) {
+            return;
+        }
         
-        Room room = roomMapper.toEntity(roomDto);
-        room.setCreator(creator);
+        boolean isPrivateRoom = roomDto.getTypeId() != null && roomDto.getTypeId() == 2;
+        int maxUsers = isPrivateRoom ? 1 : roomDto.getUserIds().size();
         
-        Room savedRoom = roomRepository.save(room);
-        
-        // Add the creator to the room with administrator role (role ID 1)
-        userRoomService.joinRoomWithRole(creator.getId(), savedRoom.getId(), 1);
-        
-        // Add additional users if specified
-        if (roomDto.getUserIds() != null && !roomDto.getUserIds().isEmpty()) {
-            // For private rooms, only add the first user from the list
-            int maxUsers = isPrivateRoom ? 1 : roomDto.getUserIds().size();
-            
-            for (int i = 0; i < maxUsers; i++) {
-                Integer userId = roomDto.getUserIds().get(i);
-                // Skip if the user ID is the same as the creator (already added)
-                if (!userId.equals(creator.getId())) {
-                    try {
-                        userRoomService.joinRoom(userId, savedRoom.getId());
-                    } catch (Exception e) {
-                        // Log the error but continue with other users
-                        System.err.println("Failed to add user " + userId + " to room: " + e.getMessage());
-                    }
+        for (int i = 0; i < maxUsers; i++) {
+            Integer userId = roomDto.getUserIds().get(i);
+            // Skip if the user ID is the same as the creator (already added)
+            if (!userId.equals(creator.getId())) {
+                try {
+                    userRoomService.joinRoom(userId, savedRoom.getId());
+                } catch (Exception e) {
+                    // Log the error but continue with other users
+                    System.err.println("Failed to add user " + userId + " to room: " + e.getMessage());
                 }
             }
         }
-        
-        return roomMapper.toDto(savedRoom);
     }
 
     public RoomDto updateRoom(Integer id, RoomUpdateDto roomUpdateDto, Integer currentUserId) {
