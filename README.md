@@ -63,7 +63,8 @@ The frontend is a WPF .NET desktop application that provides a user-friendly int
 - Java 21 or higher
 - Maven
 - .NET Framework (for the WPF client)
-- Docker and Docker Compose (optional)
+- Docker and Docker Compose
+- MariaDB
 
 ### Environment Setup
 
