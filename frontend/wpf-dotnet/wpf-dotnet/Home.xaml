@@ -102,11 +102,11 @@
 			<MenuItem Header="Logout" Click="LogoutMenuItem_Click" Style="{StaticResource SettingsMenuItemStyle}"/>
 		</ContextMenu>
 
-		<local:UserIdToAlignmentConverter x:Key="AlignmentConverter" xmlns:local="clr-namespace:wpf_dotnet"/>
-		<local:UserIdToVisibilityConverter x:Key="VisibilityConverter"/>
-		<local:UserIdToInverseVisibilityConverter x:Key="VisibilityInverseConverter"/>
-		<local:InitialsConverter x:Key="InitialsConverter"/>
-	</Page.Resources>
+        <local:UserIdToAlignmentConverter x:Key="AlignmentConverter"/>
+        <local:UserIdToVisibilityConverter x:Key="VisibilityConverter"/>
+        <local:UserIdToInverseVisibilityConverter x:Key="VisibilityInverseConverter"/>
+        <local:InitialsConverter x:Key="InitialsConverter"/>
+    </Page.Resources>
 
 	<Grid>
 		<Grid.ColumnDefinitions>
