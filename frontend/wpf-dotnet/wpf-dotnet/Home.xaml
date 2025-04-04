@@ -20,9 +20,13 @@
 		<SolidColorBrush x:Key="AvatarBlue" Color="#E1E4F9"/>
 		<SolidColorBrush x:Key="AvatarBlueText" Color="#4A72F5"/>
 
-        <Style x:Key="BackButtonStyle" TargetType="Button" BasedOn="{StaticResource MenuButtonStyle}">
-            <Setter Property="Foreground" Value="{StaticResource PrimaryColor}"/>
+        <Style x:Key="BackButtonStyle" TargetType="Button">
+            <Setter Property="Background" Value="{StaticResource PrimaryColor}"/>
+            <Setter Property="Foreground" Value="White"/>
             <Setter Property="Padding" Value="10 5"/>
+            <Setter Property="Margin" Value="10"/>
+            <Setter Property="HorizontalAlignment" Value="Left"/>
+            <Setter Property="Cursor" Value="Hand"/>
         </Style>
 
         <Style TargetType="Button" x:Key="MenuButtonStyle">
@@ -366,9 +370,9 @@
                         <Grid Grid.Row="1" Grid.RowSpan="2" x:Name="OverlayContentGrid" 
       Visibility="Collapsed" Background="#F8F9FB">
                             <StackPanel>
-                                <Button Content="Retour" Click="BackButton_Click" 
-                HorizontalAlignment="Left" Margin="10"
-                Style="{StaticResource MenuButtonStyle}"/>
+                                <Button x:Name="BackButton" Content="Retour" Click="BackButton_Click" 
+                HorizontalAlignment="Left" Margin="10 -35 0 0 "
+                Style="{StaticResource BackButtonStyle}"/>
                                 <local:InteractRoleControl x:Name="InteractRoleView" Visibility="Collapsed"/>
                                 <local:MembersListControl x:Name="MembersListView" Visibility="Collapsed"/>
                             </StackPanel>
