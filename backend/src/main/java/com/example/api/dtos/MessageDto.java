@@ -21,6 +21,7 @@ public class MessageDto {
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
     private Integer roomId;
+    private boolean isRead;
     
     public static MessageDto fromEntity(Message message) {
         try {
@@ -28,7 +29,6 @@ public class MessageDto {
             String username = null;
             Integer roomId = null;
             
-            // Vérifiez si les proxies sont initialisés avant d'y accéder
             if (message.getUser() != null && Hibernate.isInitialized(message.getUser())) {
                 userId = message.getUser().getId();
                 username = message.getUser().getUsername();
@@ -46,6 +46,7 @@ public class MessageDto {
                     .createdAt(message.getCreatedAt())
                     .updatedAt(message.getUpdatedAt())
                     .roomId(roomId)
+                    .isRead(message.isRead())
                     .build();
         } catch (Exception e) {
             System.err.println("Error accessing properties: " + e.getMessage());
@@ -54,6 +55,7 @@ public class MessageDto {
                     .content(message.getContent())
                     .createdAt(message.getCreatedAt())
                     .updatedAt(message.getUpdatedAt())
+                    .isRead(message.isRead())
                     .build();
         }
     }

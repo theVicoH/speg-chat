@@ -38,9 +38,10 @@ CREATE TABLE IF NOT EXISTS `messages` (
     `id` BIGINT PRIMARY KEY AUTO_INCREMENT NOT NULL,
     `message` TEXT NOT NULL,
     `user_id` INT NOT NULL,
+    `room_id` BIGINT NOT NULL,
+    `is_read` BOOLEAN NOT NULL DEFAULT FALSE,
     `created_at` DATETIME NOT NULL,
     `updated_at` DATETIME NOT NULL,
-    `room_id` BIGINT NOT NULL,
     CONSTRAINT `message_user_id_foreign` FOREIGN KEY (`user_id`) REFERENCES `users`(`id`),
     CONSTRAINT `message_room_id_foreign` FOREIGN KEY (`room_id`) REFERENCES `rooms`(`id`)
 );
