@@ -12,10 +12,11 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import com.example.api.entities.UserRoom;
-import com.example.api.repositories.UserRoomRepository;  // Add this import
-import org.springframework.transaction.annotation.Transactional; // Add this import
+import com.example.api.repositories.UserRoomRepository;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -159,12 +160,28 @@ public class RoomService {
         return roomMapper.toDto(updatedRoom);
     }
 
-    public void deleteRoom(Integer id, Integer creatorId) {
+    public void deleteRoom(Integer id, Integer currentUserId) {
         Room room = roomRepository.findById(id)
                 .orElseThrow(() -> new ApiException("Room not found", HttpStatus.NOT_FOUND));
 
-        if (!room.getCreator().getId().equals(creatorId)) {
-            throw new ApiException("Only the room creator can delete this room", HttpStatus.FORBIDDEN);
+        // Check if the user is a member of the room
+        if (!userRoomService.isUserMemberOfRoom(currentUserId, id)) {
+            throw new ApiException("You are not a member of this room", HttpStatus.FORBIDDEN);
+        }
+
+        // Check if the user is the creator or has admin role
+        boolean isCreator = room.getCreator().getId().equals(currentUserId);
+        boolean isAdmin = false;
+        
+        // Check if the user has admin role (assuming role ID 1 is for admin)
+        Optional<UserRoom> userRoomOpt = userRoomRepository.findByUserIdAndRoomId(currentUserId, id);
+        if (userRoomOpt.isPresent()) {
+            UserRoom userRoom = userRoomOpt.get();
+            isAdmin = userRoom.getRoleId() != null && userRoom.getRoleId().getId() == 1;
+        }
+        
+        if (!isCreator && !isAdmin) {
+            throw new ApiException("Only room creators or admins can delete this room", HttpStatus.FORBIDDEN);
         }
 
         roomRepository.deleteById(id);
