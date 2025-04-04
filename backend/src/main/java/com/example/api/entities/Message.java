@@ -10,6 +10,8 @@ import java.time.LocalDateTime;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@ToString(exclude = {"user", "room"})
+@EqualsAndHashCode(exclude = {"user", "room"})
 public class Message {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -32,6 +34,10 @@ public class Message {
     
     @Column(name = "updated_at", nullable = false)
     private LocalDateTime updatedAt;
+
+    @Builder.Default
+    @Column(name = "is_read")
+    private boolean isRead = false;
     
     // Méthode utilitaire pour obtenir l'ID de la room
     public Integer getRoomId() {

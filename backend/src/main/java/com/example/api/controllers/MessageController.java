@@ -24,7 +24,8 @@ public class MessageController {
 
     @GetMapping("/room/{roomId}")
     public ResponseEntity<List<MessageDto>> getMessagesByRoomId(@PathVariable Integer roomId) {
-        return ResponseEntity.ok(messageService.getMessagesByRoomId(roomId));
+        List<MessageDto> messages = messageService.getMessagesByRoomId(roomId);
+        return ResponseEntity.ok(messages);
     }
 
     @PostMapping
