@@ -35,11 +35,16 @@ namespace wpf_dotnet
         private ObservableCollection<User> _users = new ObservableCollection<User>();
         public ObservableCollection<User> Users => _users;
         public event PropertyChangedEventHandler PropertyChanged;
-        private int _currentRoomId;
-        public int CurrentRoomId
+        
+        private static int _currentRoomId;  // Propriété statique
+        public static int CurrentRoomId  // Propriété statique pour accéder à CurrentRoomId
         {
             get => _currentRoomId;
-            set => _currentRoomId = value;
+            set
+            {
+                _currentRoomId = value;
+                // Tu pourrais aussi appeler OnPropertyChanged ici si tu veux que les autres éléments soient notifiés.
+            }
         }
      
 
@@ -341,9 +346,17 @@ namespace wpf_dotnet
             MessagesScrollViewer.Visibility = Visibility.Collapsed;
             MessageInputGrid.Visibility = Visibility.Collapsed;
             OverlayContentGrid.Visibility = Visibility.Visible;
-            MembersListView.Visibility = Visibility.Visible;
-            InteractRoleView.Visibility = Visibility.Collapsed;
+
+            // Crée une nouvelle instance de MembersListControl
+            MembersListControl membersListControl = new MembersListControl();
+
+            // Ajoute MembersListControl à un conteneur (par exemple, un Grid) dans la vue principale
+            OverlayContentGrid.Children.Clear();  // Efface les autres contrôles si nécessaire
+            OverlayContentGrid.Children.Add(membersListControl);
+
+            membersListControl.MembersListControl_Loaded();
         }
+
 
         private void BackButton_Click(object sender, RoutedEventArgs e)
         {

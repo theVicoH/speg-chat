@@ -5,8 +5,26 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              mc:Ignorable="d"
              d:DesignHeight="450" d:DesignWidth="800">
-	<Grid>
-		<TextBlock Text="Liste des membres du salon"
-                   HorizontalAlignment="Center" VerticalAlignment="Center"/>
-	</Grid>
+    <Grid Margin="20">
+        <StackPanel>
+            <TextBlock x:Name="RoomTitle"
+                       FontSize="20"
+                       FontWeight="Bold"
+                       Margin="0,0,0,10"
+                       HorizontalAlignment="Center" />
+
+            <ListView x:Name="MembersList"
+                      BorderBrush="Gray"
+                      BorderThickness="1"
+                      Height="350">
+                <ListView.View>
+                    <GridView>
+                        <GridViewColumn Header="Nom d'utilisateur" Width="200" DisplayMemberBinding="{Binding Username}" />
+                        <GridViewColumn Header="Role" Width="150" DisplayMemberBinding="{Binding Role}" />
+                        <GridViewColumn Header="Bloque" Width="100" DisplayMemberBinding="{Binding BlockedText}" />
+                    </GridView>
+                </ListView.View>
+            </ListView>
+        </StackPanel>
+    </Grid>
 </UserControl>
