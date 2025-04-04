@@ -46,7 +46,7 @@ namespace wpf_dotnet
                         Id = user.id,
                         Username = user.username,
                         RoleId = user.role == "administrator" ? 1 : user.role == "moderator" ? 2 : 3,
-                        OriginalRoleId = user.role == "administrator" ? 1 : user.role == "moderator" ? 2 : 3 // Sauvegarde du rôle original
+                        OriginalRoleId = user.role == "administrator" ? 1 : user.role == "moderator" ? 2 : 3 // Sauvegarde du rï¿½le original
                     };
 
                     if (roomUser.RoleId == 2) _moderatorUsers.Add(roomUser);
@@ -85,11 +85,11 @@ namespace wpf_dotnet
                     {
                         hasErrors = true;
                         var errorContent = await response.Content.ReadAsStringAsync();
-                        errorMessage.AppendLine($"• Échec promotion de {user.Username}: {errorContent}");
+                        errorMessage.AppendLine($"ï¿½ ï¿½chec promotion de {user.Username}: {errorContent}");
                     }
                 }
 
-                // Rétrogradations
+                // Rï¿½trogradations
                 foreach (RoomUser user in _basicUsers.Where(u => u.OriginalRoleId != 3))
                 {
                     var url = $"http://localhost:8080/user-rooms/update-role/room/{_currentRoomId}/user/{user.Id}/role/3";
@@ -104,7 +104,7 @@ namespace wpf_dotnet
                     {
                         hasErrors = true;
                         var errorContent = await response.Content.ReadAsStringAsync();
-                        errorMessage.AppendLine($"• Échec rétrogradation de {user.Username}: {errorContent}");
+                        errorMessage.AppendLine($"ï¿½ ï¿½chec rï¿½trogradation de {user.Username}: {errorContent}");
                     }
                 }
 
@@ -112,19 +112,19 @@ namespace wpf_dotnet
                 {
                     var fullMessage = new StringBuilder();
 
-                    fullMessage.AppendLine("Vous n'avez pas les permissions nécessaires pour certains changements de rôle.");
+                    fullMessage.AppendLine("Vous n'avez pas les permissions nï¿½cessaires pour certains changements de rï¿½le.");
 
                     MessageBox.Show(fullMessage.ToString(), "Erreur de permissions", MessageBoxButton.OK, MessageBoxImage.Warning);
                 }
 
                 if (successCount > 0)
                 {
-                    MessageBox.Show($"{successCount} changement(s) de rôle appliqué(s) avec succès !",
-                                    "Succès",
+                    MessageBox.Show($"{successCount} changement(s) de rï¿½le appliquï¿½(s) avec succï¿½s !",
+                                    "Succï¿½s",
                                     MessageBoxButton.OK,
                                     MessageBoxImage.Information);
 
-                    // Recharger les données après modification
+                    // Recharger les donnï¿½es aprï¿½s modification
                     LoadData(_currentRoomId);
                 }
             }
@@ -161,7 +161,7 @@ namespace wpf_dotnet
             public int Id { get; set; }
             public string Username { get; set; }
             public int RoleId { get; set; }
-            public int OriginalRoleId { get; set; } // Nouvelle propriété
+            public int OriginalRoleId { get; set; } // Nouvelle propriï¿½tï¿½
             public bool Blocked { get; set; }
         }
     }

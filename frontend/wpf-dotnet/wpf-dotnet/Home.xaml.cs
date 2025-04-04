@@ -41,7 +41,6 @@ namespace wpf_dotnet
             get => _currentRoomId;
             set => _currentRoomId = value;
         }
-
      
 
         protected virtual void OnPropertyChanged(string propertyName)
