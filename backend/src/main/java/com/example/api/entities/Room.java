@@ -3,6 +3,8 @@ package com.example.api.entities;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.experimental.Accessors;
+import lombok.ToString;
+import lombok.EqualsAndHashCode;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 import java.time.LocalDateTime;
@@ -11,6 +13,8 @@ import java.time.LocalDateTime;
 @Accessors(chain = true)
 @Entity
 @Table(name = "rooms")
+@ToString(exclude = {"creator"})
+@EqualsAndHashCode(exclude = {"creator"})
 public class Room {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
