@@ -329,6 +329,7 @@ namespace wpf_dotnet
         private void ChatMenuButton_Click(object sender, RoutedEventArgs e)
         {
             MessageBox.Show("Menu du chat ouvert");
+            var button = sender as Button;
             if (button?.ContextMenu != null)
             {
                 button.ContextMenu.PlacementTarget = button;
