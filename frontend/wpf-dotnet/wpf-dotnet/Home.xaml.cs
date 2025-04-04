@@ -218,9 +218,16 @@ namespace wpf_dotnet
             }
         }
 
-        private void ProfileMenuItem_Click(object sender, RoutedEventArgs e)
+        private async void ProfileMenuItem_Click(object sender, RoutedEventArgs e)
         {
-            MessageBox.Show("Ouverture du profil utilisateur", "Profil", MessageBoxButton.OK, MessageBoxImage.Information);
+            ProfileModal profileModal = new ProfileModal(CurrentUser);
+            
+            bool? result = profileModal.ShowDialog();
+            
+            if (result == true)
+            {
+                await LoadCurrentUser();
+            }
         }
 
         private void GoToLogin(object sender, RoutedEventArgs e)
