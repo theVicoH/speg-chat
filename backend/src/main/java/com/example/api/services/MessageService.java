@@ -8,6 +8,7 @@ import com.example.api.entities.Message;
 import com.example.api.entities.Room;
 import com.example.api.entities.User;
 import com.example.api.exceptions.ResourceNotFoundException;
+import com.example.api.exceptions.UserBlockedException;
 import com.example.api.repositories.MessageRepository;
 import com.example.api.repositories.RoomRepository;
 import lombok.RequiredArgsConstructor;
@@ -19,7 +20,6 @@ import java.lang.module.ResolutionException;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.Optional;
-
 @Service
 @RequiredArgsConstructor
 public class MessageService {
@@ -64,24 +64,21 @@ public class MessageService {
 
         User currentUser = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
     
-        // Vérifier si l'utilisateur est bloqué
         if (isUserBlocked(currentUser.getId(), messageRequest.getRoomId())) {
-            throw new ResolutionException("You are blocked from sending messages in this room");
+            throw new UserBlockedException("You are blocked from sending messages in this room");
         }
         
-        // Check if the user is a member of the room
         if (!userRoomService.isUserMemberOfRoom(currentUser.getId(), messageRequest.getRoomId())) {
             throw new IllegalStateException("You cannot post messages in a room you are not a member of");
         }
         
-        // Récupérer la room par ID
         Room room = roomRepository.findById(messageRequest.getRoomId())
                 .orElseThrow(() -> new ResourceNotFoundException("Room not found with id: " + messageRequest.getRoomId()));
         
         Message message = Message.builder()
                 .content(messageRequest.getContent())
                 .user(currentUser)
-                .room(room) // Utiliser la relation room au lieu de roomId
+                .room(room)
                 .build();
         
         Message savedMessage = messageRepository.save(message);
@@ -94,22 +91,18 @@ public class MessageService {
         Message message = messageRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Message not found with id: " + id));
         
-        // Check if the current user is the owner of the message
         if (!message.getUser().getId().equals(currentUser.getId())) {
             throw new IllegalStateException("You can only update your own messages");
         }
         
-        // Check if the user is a member of the current room
         if (!userRoomService.isUserMemberOfRoom(currentUser.getId(), message.getRoom().getId())) {
             throw new IllegalStateException("You are not a member of this room");
         }
 
-         // Vérifier si l'utilisateur est bloqué
          if (isUserBlocked(currentUser.getId(), message.getRoom().getId())) {
-            throw new ResolutionException("You are blocked from this room");
+            throw new UserBlockedException("You are blocked from this room");
         }
         
-        // If trying to move the message to another room, check membership in that room too
         if (messageRequest.getRoomId() != null && !messageRequest.getRoomId().equals(message.getRoom().getId())) {
             if (!userRoomService.isUserMemberOfRoom(currentUser.getId(), messageRequest.getRoomId())) {
                 throw new IllegalStateException("You cannot move the message to a room you are not a member of");
@@ -132,18 +125,14 @@ public class MessageService {
         Message message = messageRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Message not found with id: " + id));
         
-        // Check if the user is a member of the room
         if (!userRoomService.isUserMemberOfRoom(currentUser.getId(), message.getRoom().getId())) {
             throw new IllegalStateException("You are not a member of this room");
         }
 
-        // Vérifier si l'utilisateur est bloqué
           if (isUserBlocked(currentUser.getId(), message.getRoom().getId())) {
-            throw new ResolutionException("You are blocked  this room");
-        }
+            throw new UserBlockedException("You are blocked  this room");
+        } 
         
-        
-        // Check if the current user is the owner of the message
         if (!message.getUser().getId().equals(currentUser.getId())) {
             throw new IllegalStateException("You can only delete your own messages");
         }
@@ -153,7 +142,8 @@ public class MessageService {
     
     private boolean isUserBlocked(Integer userId, Integer roomId) {
         Optional<UserRoom> userRoom = userRoomRepository.findByUserIdAndRoomId(userId, roomId);
-        return userRoom.map(UserRoom::isBlocked).orElse(true); 
-    }
-    
+        boolean isBlocked = userRoom.map(UserRoom::isBlocked).orElse(true);
+        
+        return isBlocked; 
+    }      
 }

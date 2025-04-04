@@ -76,7 +76,6 @@ public class RoomService {
         room.setCreator(creator);
         Room savedRoom = roomRepository.save(room);
         
-        // Add the creator as admin
         userRoomService.joinRoomWithRole(creator.getId(), savedRoom.getId(), 1);
         
         // Add other users to the room
@@ -164,7 +163,6 @@ public class RoomService {
         Room room = roomRepository.findById(id)
                 .orElseThrow(() -> new ApiException("Room not found", HttpStatus.NOT_FOUND));
 
-        // Vérifier si l'utilisateur est le créateur de la room
         if (!room.getCreator().getId().equals(creatorId)) {
             throw new ApiException("Only the room creator can delete this room", HttpStatus.FORBIDDEN);
         }
