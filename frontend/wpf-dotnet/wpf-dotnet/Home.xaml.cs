@@ -59,13 +59,26 @@ namespace wpf_dotnet
         public Home()
         {
             InitializeComponent();
-            _webSocketService = new WebSocketService(OnWebSocketMessageReceived);
+            _webSocketService = new WebSocketService(OnWebSocketMessageReceived, OnNotificationReceived);
             Instance = this;
             DataContext = this;
             Loaded += MainWindow_Loaded;
             MessagesList.ItemsSource = _messages;
             this.Unloaded += Home_Unloaded;
         }
+
+        private void OnNotificationReceived(string roomName, int count)
+        {
+            Application.Current.Dispatcher.Invoke(() =>
+            {
+                var room = PrivateRooms.FirstOrDefault(r => r.Name == roomName);
+                if (room != null)
+                {
+                    room.UnreadCount = count;
+                }
+            });
+        }
+
 
         private async void MainWindow_Loaded(object sender, RoutedEventArgs e)
         {
@@ -486,9 +499,20 @@ namespace wpf_dotnet
         }
 
 
+        // private void OnNotificationReceived(string roomName, int count)
+        // {
+        //     Application.Current.Dispatcher.Invoke(() =>
+        //     {
+        //         // On recherche dans la collection PrivateRooms le salon correspondant (ici, par exemple, via le nom)
+        //         var room = PrivateRooms.FirstOrDefault(r => r.Name == roomName);
+        //         if (room != null)
+        //         {
+        //             room.UnreadCount = count;
+        //         }
+        //     });
+        // }
 
-
-        public class Room
+        public class Room : INotifyPropertyChanged
         {
             public int Id { get; set; }
             public string Name { get; set; }
@@ -497,7 +521,26 @@ namespace wpf_dotnet
             public int CreatorId { get; set; }
             public DateTime CreatedAt { get; set; }
             public DateTime UpdatedAt { get; set; }
+
+            private int _unreadCount;
+            public int UnreadCount
+            {
+                get => _unreadCount;
+                set
+                {
+                    if (_unreadCount != value)
+                    {
+                        _unreadCount = value;
+                        OnPropertyChanged(nameof(UnreadCount));
+                    }
+                }
+            }
+
+            public event PropertyChangedEventHandler PropertyChanged;
+            protected void OnPropertyChanged(string propertyName) =>
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
+
 
 
     }
