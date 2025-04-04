@@ -23,7 +23,7 @@
 				<PasswordBox Name="PasswordBox" BorderThickness="0" Background="Transparent" Padding="8,12,8,12"/>
 			</Border>
 
-			<Button Content="S’identifier" Height="40" Background="#88AACF" Foreground="White" Margin="0,0,0,10" Cursor="Hand" Click="HandleRegisterButton">
+            <Button Content="S’identifier" Height="40" Background="#6650D8" Foreground="White" Margin="0,0,0,10" Cursor="Hand" Click="HandleRegisterButton">
 				<Button.Template>
 					<ControlTemplate TargetType="Button">
 						<Border
@@ -43,13 +43,13 @@
 			<StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
 				<TextBlock Text="Pas de compte ? " Margin="0,0,5,0"/>
 				<TextBlock HorizontalAlignment="Center" VerticalAlignment="Center">
-					<Hyperlink Foreground="#88AACF" Click="GoToLogin">
+					<Hyperlink Foreground="#6650D8" Click="GoToLogin">
 						Se connecter
 					</Hyperlink>
 				</TextBlock>
 			</StackPanel>
 		</StackPanel>
 
-		<Rectangle Grid.Column="1" Fill="#88AACF"/>
+        <Rectangle Grid.Column="1" Fill="#6650D8"/>
 	</Grid>
 </Page>
