@@ -8,7 +8,7 @@ import com.example.api.entities.Message;
 import com.example.api.entities.Room;
 import com.example.api.entities.User;
 import com.example.api.exceptions.ResourceNotFoundException;
-import com.example.api.exceptions.UserBlockedException;
+import com.example.api.exceptions.ForbiddenActionException;
 import com.example.api.repositories.MessageRepository;
 import com.example.api.repositories.RoomRepository;
 import lombok.RequiredArgsConstructor;
@@ -20,6 +20,7 @@ import java.lang.module.ResolutionException;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.Optional;
+
 @Service
 @RequiredArgsConstructor
 public class MessageService {
@@ -65,7 +66,7 @@ public class MessageService {
         User currentUser = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
     
         if (isUserBlocked(currentUser.getId(), messageRequest.getRoomId())) {
-            throw new UserBlockedException("You are blocked from sending messages in this room");
+            throw new ForbiddenActionException("You are blocked from sending messages in this room");
         }
         
         if (!userRoomService.isUserMemberOfRoom(currentUser.getId(), messageRequest.getRoomId())) {
@@ -100,7 +101,7 @@ public class MessageService {
         }
 
          if (isUserBlocked(currentUser.getId(), message.getRoom().getId())) {
-            throw new UserBlockedException("You are blocked from this room");
+            throw new ForbiddenActionException("You are blocked from this room");
         }
         
         if (messageRequest.getRoomId() != null && !messageRequest.getRoomId().equals(message.getRoom().getId())) {
@@ -130,7 +131,7 @@ public class MessageService {
         }
 
           if (isUserBlocked(currentUser.getId(), message.getRoom().getId())) {
-            throw new UserBlockedException("You are blocked  this room");
+            throw new ForbiddenActionException("You are blocked  this room");
         } 
         
         if (!message.getUser().getId().equals(currentUser.getId())) {
@@ -142,8 +143,8 @@ public class MessageService {
     
     private boolean isUserBlocked(Integer userId, Integer roomId) {
         Optional<UserRoom> userRoom = userRoomRepository.findByUserIdAndRoomId(userId, roomId);
-        boolean isBlocked = userRoom.map(UserRoom::isBlocked).orElse(true);
         
-        return isBlocked; 
-    }      
+        boolean isBlocked = userRoom.map(UserRoom::isBlocked).orElse(true);        
+        return isBlocked;
+    }
 }
