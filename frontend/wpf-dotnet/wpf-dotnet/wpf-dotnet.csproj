@@ -60,6 +60,10 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
+    <Page Include="InteractRoleControl.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -68,6 +72,12 @@
       <DependentUpon>AddRoomDialog.xaml</DependentUpon>
     </Compile>
     <Compile Include="CurrentUser.cs" />
+    <Compile Include="InteractRoleControl.xaml.cs">
+      <DependentUpon>InteractRoleControl.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="MembersListControl.xaml.cs">
+      <DependentUpon>MembersListControl.xaml</DependentUpon>
+    </Compile>
     <Compile Include="User.cs" />
     <Compile Include="Utils\SessionManager.cs" />
     <Page Include="Login.xaml">
@@ -75,6 +85,10 @@
       <SubType>Designer</SubType>
     </Page>
     <Page Include="Home.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="MembersListControl.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
