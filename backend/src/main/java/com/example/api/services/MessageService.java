@@ -20,6 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.lang.module.ResolutionException;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.Optional;
 
@@ -45,7 +46,6 @@ public class MessageService {
         Message message = messageRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Message not found with id: " + id));
         
-        // Check if the user is a member of the room where the message is
         if (!userRoomService.isUserMemberOfRoom(currentUser.getId(), message.getRoom().getId())) {
             throw new IllegalStateException("You cannot access messages in rooms you are not a member of");
         }
@@ -53,14 +53,15 @@ public class MessageService {
         return MessageDto.fromEntity(message);
     }
 
-    @Transactional(readOnly = true)
+    @Transactional
     public List<MessageDto> getMessagesByRoomId(Integer roomId) {
         User currentUser = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         
         if (!userRoomService.isUserMemberOfRoom(currentUser.getId(), roomId)) {
-            throw new IllegalStateException("You cannot post messages in a room you are not a member of");
+            throw new IllegalStateException("You cannot access messages in a room you are not a member of");
         }
-        
+
+        messageRepository.markAllMessagesAsReadInRoom(roomId, currentUser.getId());
 
         List<Message> messages = messageRepository.findByRoom_Id(roomId);
         System.out.println("Found " + messages.size() + " messages for room ID: " + roomId);
@@ -70,6 +71,7 @@ public class MessageService {
                 .collect(Collectors.toList());
     }
 
+    @Transactional
     public MessageDto createMessage(MessageRequest messageRequest) {
 
         User currentUser = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
@@ -89,19 +91,40 @@ public class MessageService {
                 .content(messageRequest.getContent())
                 .user(currentUser)
                 .room(room)
+                .isRead(false)
                 .build();
         
         Message savedMessage = messageRepository.save(message);
         MessageDto messageDto = MessageDto.fromEntity(savedMessage);
-        
+        System.out.println("Done Message: " + savedMessage);
+
         messagingTemplate.convertAndSend(
             "/topic/room." + room.getId(),
             messageDto
         );
         
+        List<User> roomUsers = userRoomService.getUsersInRoom(room.getId());
+        for (User user : roomUsers) {
+            if (!user.getId().equals(currentUser.getId())) {
+                int unreadCount = messageRepository.countUnreadMessagesForUserAndRoom(user.getId(), room.getId());
+
+                System.out.println("Done Message: " + savedMessage);
+                
+                messagingTemplate.convertAndSendToUser(
+                    user.getUsername(),
+                    "/queue/unreadCount",
+                    Map.of(
+                        "roomId", room.getId(),
+                        "count", unreadCount,
+                        "timestamp", System.currentTimeMillis()
+                    )
+                );
+            }
+        }
+        
         return messageDto;
     }
-
+    
     public MessageDto updateMessage(Integer id, MessageRequest messageRequest) {
        User currentUser = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         

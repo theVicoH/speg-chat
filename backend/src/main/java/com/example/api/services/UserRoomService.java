@@ -40,26 +40,26 @@ public class UserRoomService {
     Room room = roomRepository.findById(roomId)
             .orElseThrow(() -> new EntityNotFoundException("Salon non trouvé avec l'ID: " + roomId));
 
-    if (userRoomRepository.existsByUserIdAndRoomId(userId, roomId)) {
-        throw new ApiException("Vous êtes déjà membre de ce salon", HttpStatus.CONFLICT);
-    }
-    
-    boolean isPrivateRoom = room.getType().getId() == 2;
-    if (isPrivateRoom) {
-        long userCount = userRoomRepository.countByRoomId(roomId);
-        if (userCount >= 2) {
-            throw new ApiException("Ce salon privé a déjà atteint sa limite de 2 utilisateurs", HttpStatus.FORBIDDEN);
+        if (userRoomRepository.existsByUserIdAndRoomId(userId, roomId)) {
+            throw new ApiException("Vous êtes déjà membre de ce salon", HttpStatus.CONFLICT);
         }
-    }
+        
+        boolean isPrivateRoom = room.getType().getId() == 2;
+        if (isPrivateRoom) {
+            long userCount = userRoomRepository.countByRoomId(roomId);
+            if (userCount >= 2) {
+                throw new ApiException("Ce salon privé a déjà atteint sa limite de 2 utilisateurs", HttpStatus.FORBIDDEN);
+            }
+        }
 
-    Role basicRole = roleRepository.findById(3)
-            .orElseThrow(() -> new EntityNotFoundException("Rôle de base non trouvé avec l'ID: 3"));
+        Role basicRole = roleRepository.findById(3)
+                .orElseThrow(() -> new EntityNotFoundException("Rôle de base non trouvé avec l'ID: 3"));
 
-    UserRoom userRoom = UserRoom.builder()
-            .user(user)
-            .room(room)
-            .roleId(basicRole)
-            .build();
+        UserRoom userRoom = UserRoom.builder()
+                .user(user)
+                .room(room)
+                .roleId(basicRole)
+                .build();
 
     return userRoomRepository.save(userRoom);
     }
@@ -72,26 +72,26 @@ public class UserRoomService {
     Room room = roomRepository.findById(roomId)
             .orElseThrow(() -> new EntityNotFoundException("Salon non trouvé avec l'ID: " + roomId));
 
-    if (userRoomRepository.existsByUserIdAndRoomId(userId, roomId)) {
-        throw new ApiException("Vous êtes déjà membre de ce salon", HttpStatus.CONFLICT);
-    }
-    
-    boolean isPrivateRoom = room.getType().getId() == 2;
-    if (isPrivateRoom) {
-        long userCount = userRoomRepository.countByRoomId(roomId);
-        if (userCount >= 2) {
-            throw new ApiException("Ce salon privé a déjà atteint sa limite de 2 utilisateurs", HttpStatus.FORBIDDEN);
+        if (userRoomRepository.existsByUserIdAndRoomId(userId, roomId)) {
+            throw new ApiException("Vous êtes déjà membre de ce salon", HttpStatus.CONFLICT);
         }
-    }
+        
+        boolean isPrivateRoom = room.getType().getId() == 2;
+        if (isPrivateRoom) {
+            long userCount = userRoomRepository.countByRoomId(roomId);
+            if (userCount >= 2) {
+                throw new ApiException("Ce salon privé a déjà atteint sa limite de 2 utilisateurs", HttpStatus.FORBIDDEN);
+            }
+        }
 
-    Role role = roleRepository.findById(roleId)
-            .orElseThrow(() -> new EntityNotFoundException("Rôle non trouvé avec l'ID: " + roleId));
+        Role role = roleRepository.findById(roleId)
+                .orElseThrow(() -> new EntityNotFoundException("Rôle non trouvé avec l'ID: " + roleId));
 
-    UserRoom userRoom = UserRoom.builder()
-            .user(user)
-            .room(room)
-            .roleId(role)
-            .build();
+        UserRoom userRoom = UserRoom.builder()
+                .user(user)
+                .room(room)
+                .roleId(role)
+                .build();
 
     return userRoomRepository.save(userRoom);
     }
@@ -173,6 +173,10 @@ public class UserRoomService {
     @Transactional(readOnly = true)
     public boolean isUserMemberOfRoom(Integer userId, Integer roomId) {
         return userRoomRepository.existsByUserIdAndRoomId(userId, roomId);
+    }
+
+    public List<User> getUsersInRoom(Integer roomId) {
+        return userRepository.findAllByRoomId(roomId);
     }
     
     private UserRoom checkAdminAccess(Integer roomId) {
