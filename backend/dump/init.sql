@@ -42,7 +42,6 @@ CREATE TABLE IF NOT EXISTS `messages` (
     `is_read` BOOLEAN NOT NULL DEFAULT FALSE,
     `created_at` DATETIME NOT NULL,
     `updated_at` DATETIME NOT NULL,
-    `room_id` BIGINT NOT NULL,
     CONSTRAINT `message_user_id_foreign` FOREIGN KEY (`user_id`) REFERENCES `users`(`id`) ON DELETE CASCADE,
     CONSTRAINT `message_room_id_foreign` FOREIGN KEY (`room_id`) REFERENCES `rooms`(`id`) ON DELETE CASCADE
 );
