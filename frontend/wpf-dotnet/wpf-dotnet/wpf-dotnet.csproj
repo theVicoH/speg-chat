@@ -71,6 +71,7 @@
     <Compile Include="AddRoomDialog.xaml.cs">
       <DependentUpon>AddRoomDialog.xaml</DependentUpon>
     </Compile>
+    <Compile Include="BoolToVisibilityConverter.cs" />
     <Compile Include="CurrentUser.cs" />
     <Compile Include="InteractRoleControl.xaml.cs">
       <DependentUpon>InteractRoleControl.xaml</DependentUpon>

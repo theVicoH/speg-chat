@@ -14,6 +14,7 @@ using wpf_dotnet;
 using System.Text;
 using System.ComponentModel;
 using System.Windows.Controls.Primitives;
+using System.Linq;
 
 
 
@@ -40,7 +41,7 @@ namespace wpf_dotnet
             get => _currentRoomId;
             set => _currentRoomId = value;
         }
-
+     
 
         protected virtual void OnPropertyChanged(string propertyName)
         {
@@ -103,6 +104,8 @@ namespace wpf_dotnet
                 MessageBox.Show($"Erreur chargement des salons publics: {ex.Message}");
             }
         }
+
+
         private async Task LoadPrivateRooms()
         {
             try
@@ -253,7 +256,6 @@ namespace wpf_dotnet
                 GoToLogin(sender, e);
             }
         }
-
         private async void GroupItem_PreviewMouseDown(object sender, MouseButtonEventArgs e)
         {
             var grid = sender as Grid;
@@ -268,9 +270,11 @@ namespace wpf_dotnet
 
                 CurrentRoomName = selectedRoom.Name;
                 CurrentRoomId = selectedRoom.Id;
+                CurrentRoomType = 1;
                 await LoadMessages(selectedRoom.Id);
             }
         }
+
 
         private async void PersonItem_PreviewMouseDown(object sender, MouseButtonEventArgs e)
         {
@@ -286,6 +290,7 @@ namespace wpf_dotnet
 
                 CurrentRoomName = selectedRoom.Name;
                 CurrentRoomId = selectedRoom.Id;
+                CurrentRoomType = 2;
                 await LoadMessages(selectedRoom.Id);
             }
         }
@@ -337,18 +342,50 @@ namespace wpf_dotnet
 
 
 
-        private void DeleteRoomMenuItem_Click(object sender, RoutedEventArgs e)
+        private async void DeleteRoomMenuItem_Click(object sender, RoutedEventArgs e)
         {
-            var result = MessageBox.Show("Êtes-vous sûr de vouloir supprimer ce salon ?",
+            if (CurrentRoomId == 0)
+            {
+                MessageBox.Show("Aucun salon sélectionné");
+                return;
+            }
+
+            var result = MessageBox.Show($"Êtes-vous sûr de vouloir supprimer le salon {CurrentRoomName} ?",
                                         "Confirmation",
                                         MessageBoxButton.YesNo,
                                         MessageBoxImage.Question);
+
             if (result == MessageBoxResult.Yes)
             {
-                // Logique de suppression ici
+                try
+                {
+                    _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", SessionManager.Token);
+                    var response = await _client.DeleteAsync($"http://localhost:8080/rooms/{CurrentRoomId}");
+
+                    if (response.IsSuccessStatusCode)
+                    {
+                        if (_currentRoomType == 1) await LoadPublicRooms();
+                        else await LoadPrivateRooms();
+
+                        CurrentRoomId = 0;
+                        CurrentRoomName = string.Empty;
+                        _messages.Clear();
+
+                        MessageBox.Show("Salon supprimé avec succès");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"Erreur lors de la suppression : {ex.Message}");
+                }
             }
         }
-
+        private int _currentRoomType;
+        public int CurrentRoomType
+        {
+            get => _currentRoomType;
+            set => _currentRoomType = value;
+        }
 
         private async void SendMessageButton_Click(object sender, RoutedEventArgs e)
         {
@@ -439,6 +476,7 @@ namespace wpf_dotnet
             public DateTime CreatedAt { get; set; }
             public int RoomId { get; set; }
         }
+
 
         public class Room
         {
