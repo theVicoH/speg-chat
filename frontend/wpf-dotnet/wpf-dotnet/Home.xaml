@@ -105,6 +105,18 @@
 			</Setter>
 		</Style>
 
+        <ContextMenu x:Key="ChatMenu" Width="200" Background="{StaticResource White}" 
+             BorderBrush="{StaticResource LightGray}" BorderThickness="1" 
+             HasDropShadow="True" Padding="0">
+            <MenuItem Header="Interagir avec un rôle" Click="InteractRoleMenuItem_Click" 
+              Style="{StaticResource SettingsMenuItemStyle}"/>
+            <MenuItem Header="Liste des membres" Click="ListMembersMenuItem_Click" 
+              Style="{StaticResource SettingsMenuItemStyle}"/>
+            <Separator Margin="0"/>
+            <MenuItem Header="Supprimer le salon" Click="DeleteRoomMenuItem_Click" 
+              Style="{StaticResource SettingsMenuItemStyle}"/>
+        </ContextMenu>
+
 
         <ContextMenu x:Key="ChatMenu" Width="200" Background="{StaticResource White}" 
              BorderBrush="{StaticResource LightGray}" BorderThickness="1" 
