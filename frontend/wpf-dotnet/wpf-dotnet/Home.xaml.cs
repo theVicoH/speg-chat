@@ -343,19 +343,40 @@ namespace wpf_dotnet
 
                     if (response.IsSuccessStatusCode)
                     {
+                        // Recharger les salons
                         if (_currentRoomType == 1) await LoadPublicRooms();
                         else await LoadPrivateRooms();
 
+                        // Réinitialiser l'affichage
                         CurrentRoomId = 0;
                         CurrentRoomName = string.Empty;
                         _messages.Clear();
 
                         MessageBox.Show("Salon supprimé avec succès");
                     }
+                    else if (response.StatusCode == System.Net.HttpStatusCode.Forbidden)
+                    {
+                        MessageBox.Show("Vous n'êtes pas autorisé à supprimer ce salon. Demandez à un administrateur.",
+                                      "Permission refusée",
+                                      MessageBoxButton.OK,
+                                      MessageBoxImage.Warning);
+                    }
+                    else
+                    {
+                        MessageBox.Show($"Erreur lors de la suppression (HTTP {(int)response.StatusCode})",
+                                      "Erreur",
+                                      MessageBoxButton.OK,
+                                      MessageBoxImage.Error);
+                    }
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show($"Erreur lors de la suppression : {ex.Message}");
+                    // Pour les versions avant .NET 5, on ne peut pas accéder au StatusCode directement
+                    // On affiche donc un message générique
+                    MessageBox.Show($"Erreur lors de la suppression : {ex.Message}",
+                                  "Erreur",
+                                  MessageBoxButton.OK,
+                                  MessageBoxImage.Error);
                 }
             }
         }
