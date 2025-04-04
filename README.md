@@ -66,6 +66,7 @@ The frontend is a WPF .NET desktop application that provides a user-friendly int
 - Docker and Docker Compose
 - MariaDB
 
+
 ### Environment Setup
 
 1. Clone the repository:
