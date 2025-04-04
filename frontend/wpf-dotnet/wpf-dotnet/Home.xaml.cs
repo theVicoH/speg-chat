@@ -41,6 +41,7 @@ namespace wpf_dotnet
             get => _currentRoomId;
             set => _currentRoomId = value;
         }
+
      
 
         protected virtual void OnPropertyChanged(string propertyName)
@@ -65,7 +66,17 @@ namespace wpf_dotnet
             await LoadCurrentUser();
             await LoadPublicRooms();
             await LoadUsers();
-            await LoadMessages();
+            if (_publicRooms.Any())
+            {
+                CurrentRoomId = _publicRooms.First().Id;
+                CurrentRoomName = _publicRooms.First().Name;
+                await LoadMessages(CurrentRoomId);
+            }
+            else
+            {
+                _messages.Clear();
+                CurrentRoomName = "Aucun salon disponible";
+            }
         }
 
         private async Task LoadCurrentUser()
@@ -127,8 +138,9 @@ namespace wpf_dotnet
                 MessageBox.Show($"Erreur chargement des messages priv�s: {ex.Message}");
             }
         }
-        private async Task LoadMessages(int roomId = 2)
+        private async Task LoadMessages(int roomId)
         {
+            if (roomId <= 0) return;
             try
             {
                 _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", SessionManager.Token);
@@ -322,6 +334,7 @@ namespace wpf_dotnet
             OverlayContentGrid.Visibility = Visibility.Visible;
             InteractRoleView.Visibility = Visibility.Visible;
             MembersListView.Visibility = Visibility.Collapsed;
+            InteractRoleView.LoadData(CurrentRoomId);
         }
 
         private void ListMembersMenuItem_Click(object sender, RoutedEventArgs e)
