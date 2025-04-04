@@ -372,7 +372,7 @@
       Visibility="Collapsed" Background="#F8F9FB">
                             <StackPanel>
                                 <Button x:Name="BackButton" Content="Retour" Click="BackButton_Click" 
-                HorizontalAlignment="Left" Margin="10 -35 0 0 "
+                HorizontalAlignment="Left" Margin="10 0 0 0 "
                 Style="{StaticResource BackButtonStyle}"/>
                                 <local:InteractRoleControl x:Name="InteractRoleView" Visibility="Collapsed"/>
                                 <local:MembersListControl x:Name="MembersListView" Visibility="Collapsed"/>
