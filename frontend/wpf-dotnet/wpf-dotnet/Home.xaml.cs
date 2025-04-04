@@ -21,7 +21,10 @@ using System.Linq;
 namespace wpf_dotnet
 {
     public partial class Home : Page, INotifyPropertyChanged
+
     {
+
+
         private Grid _lastSelectedGroup;
         private Grid _lastSelectedPerson;
         private readonly HttpClient _client = new HttpClient();
@@ -35,7 +38,8 @@ namespace wpf_dotnet
         private ObservableCollection<User> _users = new ObservableCollection<User>();
         public ObservableCollection<User> Users => _users;
         public event PropertyChangedEventHandler PropertyChanged;
-        
+        private WebSocketService _webSocketService;
+
         private static int _currentRoomId;  // Propriété statique
         public static int CurrentRoomId  // Propriété statique pour accéder à CurrentRoomId
         {
@@ -46,7 +50,7 @@ namespace wpf_dotnet
                 // Tu pourrais aussi appeler OnPropertyChanged ici si tu veux que les autres éléments soient notifiés.
             }
         }
-     
+
 
         protected virtual void OnPropertyChanged(string propertyName)
         {
@@ -58,11 +62,12 @@ namespace wpf_dotnet
         public Home()
         {
             InitializeComponent();
-            //MessageBox.Show(SessionManager.Token);
+            _webSocketService = new WebSocketService(OnWebSocketMessageReceived);
             Instance = this;
             DataContext = this;
             Loaded += MainWindow_Loaded;
             MessagesList.ItemsSource = _messages;
+            this.Unloaded += Home_Unloaded;
         }
 
         private async void MainWindow_Loaded(object sender, RoutedEventArgs e)
@@ -81,6 +86,14 @@ namespace wpf_dotnet
                 _messages.Clear();
                 CurrentRoomName = "Aucun salon disponible";
             }
+        }
+
+        private void OnWebSocketMessageReceived(Message message)
+        {
+            Application.Current.Dispatcher.Invoke(() =>
+            {
+                _messages.Add(message);
+            });
         }
 
         private async Task LoadCurrentUser()
@@ -142,6 +155,11 @@ namespace wpf_dotnet
                 MessageBox.Show($"Erreur chargement des messages priv�s: {ex.Message}");
             }
         }
+
+
+
+
+
         private async Task LoadMessages(int roomId)
         {
             if (roomId <= 0) return;
@@ -265,7 +283,7 @@ namespace wpf_dotnet
 
         private void LogoutMenuItem_Click(object sender, RoutedEventArgs e)
         {
-            var result = MessageBox.Show("Etes-vous sûr de vouloir vous déconnecter ?", "Confirmation", MessageBoxButton.YesNo, MessageBoxImage.Question);
+            var result = MessageBox.Show("Êtes-vous sûr de vouloir vous déconnecter ?", "Confirmation", MessageBoxButton.YesNo, MessageBoxImage.Question);
             if (result == MessageBoxResult.Yes)
             {
                 SessionManager.SetToken("");
@@ -277,6 +295,7 @@ namespace wpf_dotnet
             var grid = sender as Grid;
             if (grid?.DataContext is Room selectedRoom)
             {
+                
                 if (_lastSelectedGroup != null)
                 {
                     _lastSelectedGroup.Background = Brushes.Transparent;
@@ -284,13 +303,20 @@ namespace wpf_dotnet
                 grid.Background = new SolidColorBrush(Color.FromArgb(30, 0, 0, 0));
                 _lastSelectedGroup = grid;
 
+          
                 CurrentRoomName = selectedRoom.Name;
                 CurrentRoomId = selectedRoom.Id;
                 CurrentRoomType = 1;
+                _webSocketService.Connect(selectedRoom.Id.ToString());
+
                 await LoadMessages(selectedRoom.Id);
             }
         }
 
+        private void Home_Unloaded(object sender, RoutedEventArgs e)
+        {
+            _webSocketService?.Disconnect();
+        }
 
         private async void PersonItem_PreviewMouseDown(object sender, MouseButtonEventArgs e)
         {
@@ -307,6 +333,8 @@ namespace wpf_dotnet
                 CurrentRoomName = selectedRoom.Name;
                 CurrentRoomId = selectedRoom.Id;
                 CurrentRoomType = 2;
+                _webSocketService.Connect(selectedRoom.Id.ToString());
+
                 await LoadMessages(selectedRoom.Id);
             }
         }
@@ -322,7 +350,7 @@ namespace wpf_dotnet
 
         private void ChatMenuButton_Click(object sender, RoutedEventArgs e)
         {
-            var button = sender as Button;
+            MessageBox.Show("Menu du chat ouvert");
             if (button?.ContextMenu != null)
             {
                 button.ContextMenu.PlacementTarget = button;
@@ -433,17 +461,19 @@ namespace wpf_dotnet
             set => _currentRoomType = value;
         }
 
-        private async void SendMessageButton_Click(object sender, RoutedEventArgs e)
+        private void SendMessageButton_Click(object sender, RoutedEventArgs e)
         {
             var messageContent = MessageInputTextBox.Text.Trim();
 
-            if (string.IsNullOrEmpty(messageContent) || messageContent == "Type your message ...")
+            // Validation du message
+            if (string.IsNullOrEmpty(messageContent))
             {
                 MessageBox.Show("Veuillez saisir un message");
                 return;
             }
 
-            if (CurrentRoomId == 0)
+            // Validation de la salle
+            if (_currentRoomId == 0)
             {
                 MessageBox.Show("Veuillez sélectionner une salle d'abord");
                 return;
@@ -451,29 +481,15 @@ namespace wpf_dotnet
 
             try
             {
-                var messageData = new
-                {
-                    content = messageContent,
-                    roomId = CurrentRoomId
-                };
+                // Envoi via WebSocket
+                _webSocketService.SendMessage(_currentRoomId.ToString(), messageContent);
 
-                var content = new StringContent(JsonConvert.SerializeObject(messageData), Encoding.UTF8, "application/json");
-                _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", SessionManager.Token);
-
-                // CORRECTION ICI : Utilisation du bon endpoint /messages
-                var response = await _client.PostAsync("http://localhost:8080/messages", content);
-
-                response.EnsureSuccessStatusCode();
-
-                // Réinitialiser le champ de message
+                // Réinitialisation du champ
                 MessageInputTextBox.Text = string.Empty;
-
-                // Recharger les messages
-                await LoadMessages(CurrentRoomId);
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Erreur d'envoi du message: {ex.Message}");
+                MessageBox.Show($"Erreur création salon: {ex.Message}");
             }
         }
 
@@ -513,15 +529,7 @@ namespace wpf_dotnet
             }
         }
 
-        public class Message
-        {
-            public int Id { get; set; }
-            public string Content { get; set; }
-            public int UserId { get; set; }
-            public string Username { get; set; }
-            public DateTime CreatedAt { get; set; }
-            public int RoomId { get; set; }
-        }
+
 
 
         public class Room
