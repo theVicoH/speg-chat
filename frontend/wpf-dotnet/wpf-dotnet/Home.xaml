@@ -20,7 +20,12 @@
 		<SolidColorBrush x:Key="AvatarBlue" Color="#E1E4F9"/>
 		<SolidColorBrush x:Key="AvatarBlueText" Color="#4A72F5"/>
 
-		<Style TargetType="Button" x:Key="MenuButtonStyle">
+        <Style x:Key="BackButtonStyle" TargetType="Button" BasedOn="{StaticResource MenuButtonStyle}">
+            <Setter Property="Foreground" Value="{StaticResource PrimaryColor}"/>
+            <Setter Property="Padding" Value="10 5"/>
+        </Style>
+
+        <Style TargetType="Button" x:Key="MenuButtonStyle">
 			<Setter Property="Background" Value="Transparent"/>
 			<Setter Property="BorderThickness" Value="0"/>
 			<Setter Property="Foreground" Value="White"/>
@@ -96,7 +101,19 @@
 			</Setter>
 		</Style>
 
-		<ContextMenu x:Key="SettingsMenu" Width="150" Background="{StaticResource White}" BorderBrush="{StaticResource LightGray}" BorderThickness="1" HasDropShadow="True" Padding="0">
+        <ContextMenu x:Key="ChatMenu" Width="200" Background="{StaticResource White}" 
+             BorderBrush="{StaticResource LightGray}" BorderThickness="1" 
+             HasDropShadow="True" Padding="0">
+            <MenuItem Header="Interagir avec un rôle" Click="InteractRoleMenuItem_Click" 
+              Style="{StaticResource SettingsMenuItemStyle}"/>
+            <MenuItem Header="Liste des membres" Click="ListMembersMenuItem_Click" 
+              Style="{StaticResource SettingsMenuItemStyle}"/>
+            <Separator Margin="0"/>
+            <MenuItem Header="Supprimer le salon" Click="DeleteRoomMenuItem_Click" 
+              Style="{StaticResource SettingsMenuItemStyle}"/>
+        </ContextMenu>
+
+        <ContextMenu x:Key="SettingsMenu" Width="150" Background="{StaticResource White}" BorderBrush="{StaticResource LightGray}" BorderThickness="1" HasDropShadow="True" Padding="0">
 			<MenuItem Header="Profil" Click="ProfileMenuItem_Click" Style="{StaticResource SettingsMenuItemStyle}"/>
 			<Separator Margin="0"/>
 			<MenuItem Header="Logout" Click="LogoutMenuItem_Click" Style="{StaticResource SettingsMenuItemStyle}"/>
@@ -301,7 +318,9 @@
             Margin="10 0 0 0"
             Background="Transparent" 
             BorderThickness="0" 
-            Click="ChatMenuButton_Click">
+            Click="ChatMenuButton_Click"
+            ContextMenu="{StaticResource ChatMenu}">
+        
         <Path Data="M0,0 L12,0 L12,2 L0,2 Z M0,5 L12,5 L12,7 L0,7 Z M0,10 L12,10 L12,12 L0,12 Z" 
               Fill="Black" 
               Stretch="Uniform" 
@@ -309,7 +328,7 @@
     </Button>
 </Grid>
 
-						<ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+                        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" x:Name="MessagesScrollViewer">
 							<ItemsControl x:Name="MessagesList" Margin="20 0">
 								<ItemsControl.ItemTemplate>
 									<DataTemplate>
@@ -344,7 +363,18 @@
 							</ItemsControl>
 						</ScrollViewer>
 
-						<Grid Grid.Row="2" Margin="20 10">
+                        <Grid Grid.Row="1" Grid.RowSpan="2" x:Name="OverlayContentGrid" 
+      Visibility="Collapsed" Background="#F8F9FB">
+                            <StackPanel>
+                                <Button Content="Retour" Click="BackButton_Click" 
+                HorizontalAlignment="Left" Margin="10"
+                Style="{StaticResource MenuButtonStyle}"/>
+                                <local:InteractRoleControl x:Name="InteractRoleView" Visibility="Collapsed"/>
+                                <local:MembersListControl x:Name="MembersListView" Visibility="Collapsed"/>
+                            </StackPanel>
+                        </Grid>
+
+                        <Grid Grid.Row="2" Margin="20 10" x:Name="MessageInputGrid">
 							<Grid.ColumnDefinitions>
 								<ColumnDefinition Width="*"/>
 								<ColumnDefinition Width="Auto"/>

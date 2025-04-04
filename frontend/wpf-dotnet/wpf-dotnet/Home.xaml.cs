@@ -13,6 +13,7 @@ using wpf_dotnet.Utils;
 using wpf_dotnet;
 using System.Text;
 using System.ComponentModel;
+using System.Windows.Controls.Primitives;
 
 
 
@@ -279,8 +280,54 @@ namespace wpf_dotnet
 
         private void ChatMenuButton_Click(object sender, RoutedEventArgs e)
         {
-            MessageBox.Show("Menu du chat ouvert");
+            var button = sender as Button;
+            if (button?.ContextMenu != null)
+            {
+                button.ContextMenu.PlacementTarget = button;
+                button.ContextMenu.Placement = PlacementMode.Bottom;
+                button.ContextMenu.IsOpen = true;
+            }
         }
+
+        private void InteractRoleMenuItem_Click(object sender, RoutedEventArgs e)
+        {
+            MessagesScrollViewer.Visibility = Visibility.Collapsed;
+            MessageInputGrid.Visibility = Visibility.Collapsed;
+            OverlayContentGrid.Visibility = Visibility.Visible;
+            InteractRoleView.Visibility = Visibility.Visible;
+            MembersListView.Visibility = Visibility.Collapsed;
+        }
+
+        private void ListMembersMenuItem_Click(object sender, RoutedEventArgs e)
+        {
+            MessagesScrollViewer.Visibility = Visibility.Collapsed;
+            MessageInputGrid.Visibility = Visibility.Collapsed;
+            OverlayContentGrid.Visibility = Visibility.Visible;
+            MembersListView.Visibility = Visibility.Visible;
+            InteractRoleView.Visibility = Visibility.Collapsed;
+        }
+
+        private void BackButton_Click(object sender, RoutedEventArgs e)
+        {
+            OverlayContentGrid.Visibility = Visibility.Collapsed;
+            MessagesScrollViewer.Visibility = Visibility.Visible;
+            MessageInputGrid.Visibility = Visibility.Visible;
+        }
+
+
+
+        private void DeleteRoomMenuItem_Click(object sender, RoutedEventArgs e)
+        {
+            var result = MessageBox.Show("Êtes-vous sûr de vouloir supprimer ce salon ?",
+                                        "Confirmation",
+                                        MessageBoxButton.YesNo,
+                                        MessageBoxImage.Question);
+            if (result == MessageBoxResult.Yes)
+            {
+                // Logique de suppression ici
+            }
+        }
+
 
         private async void SendMessageButton_Click(object sender, RoutedEventArgs e)
         {
